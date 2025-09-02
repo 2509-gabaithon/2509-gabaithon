@@ -2,3 +2,5 @@
 
 ## member
 kai
+nishiyama
+salieri256
