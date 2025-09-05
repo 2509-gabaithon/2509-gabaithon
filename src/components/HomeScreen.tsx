@@ -22,7 +22,6 @@ interface Character {
 
 interface HomeScreenProps {
   character: Character;
-  userName: string;
   onNavigateToStampRally: () => void;
   onNavigateToDecoration: () => void;
   onTabChange?: (tab: TabType) => void;
@@ -30,7 +29,6 @@ interface HomeScreenProps {
 
 export function HomeScreen({
   character,
-  userName,
   onNavigateToStampRally,
   onNavigateToDecoration,
   onTabChange,
