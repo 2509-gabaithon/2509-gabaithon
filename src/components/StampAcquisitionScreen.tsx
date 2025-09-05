@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import stampImage from 'figma:asset/23d72f267674d7a86e5a4d3966ba367d52634bd9.png';
-import noiseTexture from 'figma:asset/221bcc06007de28e2dedf86e88d0a2798eac78e7.png';
+import stampImage from '@/assets/23d72f267674d7a86e5a4d3966ba367d52634bd9.png';
+import noiseTexture from '@/assets/221bcc06007de28e2dedf86e88d0a2798eac78e7.png';
 
 interface StampAcquisitionScreenProps {
   onComplete: () => void;

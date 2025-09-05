@@ -5,9 +5,9 @@ import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Star, Stamp, ArrowUp, Heart, Zap } from 'lucide-react';
-import characterImage from 'figma:asset/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
-import stampImage from 'figma:asset/a8b69e84e6c8ec654b2bdf9a79607a4db01624d6.png';
-import noiseTexture from 'figma:asset/221bcc06007de28e2dedf86e88d0a2798eac78e7.png';
+import characterImage from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
+import stampImage from '@/assets/a8b69e84e6c8ec654b2bdf9a79607a4db01624d6.png';
+import noiseTexture from '@/assets/221bcc06007de28e2dedf86e88d0a2798eac78e7.png';
 
 interface ResultScreenProps {
   timeSpent: number;
