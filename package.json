@@ -8,6 +8,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.2.3",
+    "lucide-react": "^0.542.0",
     "motion": "^12.23.12",
     "next": "15.5.2",
     "react": "19.1.0",
