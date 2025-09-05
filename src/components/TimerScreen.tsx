@@ -253,7 +253,7 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
             <div className="text-center">
               <div className="w-32 h-32 mx-auto mb-4 bg-app-accent-2 rounded-full border-4 border-app-accent-1 flex items-center justify-center overflow-hidden relative">
                 <img
-                  src={kawaiiImage}
+                  src={kawaiiImage.src}
                   alt={character.name}
                   className="w-28 h-28 object-contain character-pulse absolute top-1/2 left-1/2"
                 />
@@ -327,7 +327,7 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
           <DialogHeader className="text-center">
             <div className="mx-auto mb-4 w-16 h-16 bg-app-accent-2 rounded-full border-4 border-app-accent-1 flex items-center justify-center">
               <img
-                src={kawaiiImage}
+                src={kawaiiImage.src}
                 alt={character.name}
                 className="w-12 h-12 object-contain"
               />
