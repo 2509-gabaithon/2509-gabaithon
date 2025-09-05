@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import * as LabelPrimitive from "@radix-ui/react-label@2.1.2";
-import { Slot } from "@radix-ui/react-slot@1.1.2";
+import { Slot } from "@radix-ui/react-slot";
 import {
   Controller,
   FormProvider,

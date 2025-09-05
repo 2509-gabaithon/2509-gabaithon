@@ -14,9 +14,9 @@ import {
   BottomTabNavigation,
   TabType,
 } from "./BottomTabNavigation";
-import beppyonImage from "figma:asset/3c6e9e82c814a4dcb5208e61977d5118a50e6a2c.png";
-import yuttsuraImage from "figma:asset/cc82c1498637df3406caa6867e011e9f0b8813d7.png";
-import kawaiiImage from "figma:asset/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png";
+import beppyonImage from "@/assets/3c6e9e82c814a4dcb5208e61977d5118a50e6a2c.png";
+import yuttsuraImage from "@/assets/cc82c1498637df3406caa6867e011e9f0b8813d7.png";
+import kawaiiImage from "@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png";
 
 interface Character {
   name: string;

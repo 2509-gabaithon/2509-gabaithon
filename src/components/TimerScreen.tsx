@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { Sparkles } from 'lucide-react';
-import kawaiiImage from 'figma:asset/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
+import kawaiiImage from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
 
 interface Character {
   name: string;

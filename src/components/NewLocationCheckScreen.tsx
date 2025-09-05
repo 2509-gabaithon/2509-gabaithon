@@ -3,8 +3,8 @@ import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { ArrowLeft, MapPin, Navigation } from 'lucide-react';
 
-import kawaiiImage from 'figma:asset/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
-import mapImage from 'figma:asset/1a0f3b4eaaf666c678218990a5f3915504e73d9c.png';
+import kawaiiImage from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
+import mapImage from '@/assets/1a0f3b4eaaf666c678218990a5f3915504e73d9c.png';
 
 interface NewLocationCheckScreenProps {
   onBack: () => void;

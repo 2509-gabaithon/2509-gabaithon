@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ArrowLeft } from 'lucide-react';
-import kawaiiImage from 'figma:asset/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
+import kawaiiImage from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
 
 interface CharacterNameInputScreenProps {
   userName: string;

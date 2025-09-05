@@ -2,8 +2,8 @@ import React from 'react';
 
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Sparkles, Settings } from 'lucide-react';
-import characterImage from 'figma:asset/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
-import logoImage from 'figma:asset/083e8d1afec77cec07a99daa65bb32f7c070dfa4.png';
+import characterImage from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
+import logoImage from '@/assets/083e8d1afec77cec07a99daa65bb32f7c070dfa4.png';
 
 interface TitleScreenProps {
   onStart: () => void;
