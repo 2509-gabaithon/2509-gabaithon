@@ -5,6 +5,7 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
+        <div className="text-2xl text-red-500">検証用</div>
         <Image
           className={styles.logo}
           src="/next.svg"
