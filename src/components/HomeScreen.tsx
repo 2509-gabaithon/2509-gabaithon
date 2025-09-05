@@ -1,16 +1,10 @@
 import React from "react";
 import { Button } from "./ui/button";
-import {
-  Card,
-  CardContent
-} from "./ui/card";
+import { Card, CardContent } from "./ui/card";
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
 import { Heart, Star, Droplets, Map, Sparkles } from "lucide-react";
-import {
-  BottomTabNavigation,
-  TabType,
-} from "./BottomTabNavigation";
+import { BottomTabNavigation, TabType } from "./BottomTabNavigation";
 import beppyonImage from "@/assets/3c6e9e82c814a4dcb5208e61977d5118a50e6a2c.png";
 import yuttsuraImage from "@/assets/cc82c1498637df3406caa6867e011e9f0b8813d7.png";
 import kawaiiImage from "@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png";
@@ -41,8 +35,7 @@ export function HomeScreen({
   onNavigateToDecoration,
   onTabChange,
 }: HomeScreenProps) {
-  const expPercentage =
-    (character.exp / character.maxExp) * 100;
+  const expPercentage = (character.exp / character.maxExp) * 100;
 
   // キャラクターの種類に応じて画像を選択
   const getCharacterImage = () => {
@@ -85,43 +78,32 @@ export function HomeScreen({
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium">
-                    経験値
-                  </span>
+                  <span className="text-sm font-medium">経験値</span>
                   <span className="text-sm text-app-base-light">
                     {character.exp} / {character.maxExp}
                   </span>
                 </div>
-                <Progress
-                  value={expPercentage}
-                  className="h-2"
-                />
+                <Progress value={expPercentage} className="h-2" />
               </div>
 
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div className="flex flex-col items-center">
                   <Heart className="h-6 w-6 text-app-main mb-1" />
-                  <span className="text-sm font-medium">
-                    幸福度
-                  </span>
+                  <span className="text-sm font-medium">幸福度</span>
                   <span className="text-lg font-bold text-app-main">
                     {character.happiness}%
                   </span>
                 </div>
                 <div className="flex flex-col items-center">
                   <Star className="h-6 w-6 text-app-accent-1-dark mb-1" />
-                  <span className="text-sm font-medium">
-                    スタミナ
-                  </span>
+                  <span className="text-sm font-medium">スタミナ</span>
                   <span className="text-lg font-bold text-app-accent-1-dark">
                     {character.stamina}%
                   </span>
                 </div>
                 <div className="flex flex-col items-center">
                   <Droplets className="h-6 w-6 text-app-base mb-1" />
-                  <span className="text-sm font-medium">
-                    温泉回数
-                  </span>
+                  <span className="text-sm font-medium">温泉回数</span>
                   <span className="text-lg font-bold text-app-base">
                     {character.onsenCount}回
                   </span>
@@ -132,11 +114,7 @@ export function HomeScreen({
         </Card>
 
         <div className="space-y-3">
-          <Button
-            size="lg"
-            className="w-full"
-            onClick={onNavigateToStampRally}
-          >
+          <Button size="lg" className="w-full" onClick={onNavigateToStampRally}>
             <Map />
             スタンプラリーを見る
           </Button>
@@ -153,10 +131,7 @@ export function HomeScreen({
         </div>
       </div>
 
-      <BottomTabNavigation
-        activeTab="home"
-        onTabChange={handleTabChange}
-      />
+      <BottomTabNavigation activeTab="home" onTabChange={handleTabChange} />
     </div>
   );
 }
