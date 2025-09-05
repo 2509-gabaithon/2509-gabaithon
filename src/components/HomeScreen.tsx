@@ -9,7 +9,7 @@ import {
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { Heart, Star, Droplets } from "lucide-react";
+import { Heart, Star, Droplets, Map, Sparkles } from "lucide-react";
 import {
   BottomTabNavigation,
   TabType,
@@ -85,7 +85,6 @@ export function HomeScreen({
                 レベル {character.level}
               </Badge>
             </div>
-
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between items-center mb-2">
@@ -141,7 +140,8 @@ export function HomeScreen({
             className="w-full"
             onClick={onNavigateToStampRally}
           >
-            🗾 スタンプラリーを見る
+            <Map />
+            スタンプラリーを見る
           </Button>
 
           <Button
@@ -150,7 +150,8 @@ export function HomeScreen({
             className="w-full"
             onClick={onNavigateToDecoration}
           >
-            ✨ キャラクターデコレーション
+            <Sparkles className="text-app-accent-1-dark" />
+            キャラクターデコレーション
           </Button>
         </div>
       </div>
