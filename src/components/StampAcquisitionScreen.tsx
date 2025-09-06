@@ -31,7 +31,7 @@ export function StampAcquisitionScreen({ onComplete }: StampAcquisitionScreenPro
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen bg-white flex flex-col items-center justify-center p-4 relative overflow-hidden"
       onClick={handleScreenTap}
     >
@@ -62,8 +62,8 @@ export function StampAcquisitionScreen({ onComplete }: StampAcquisitionScreenPro
           <motion.div
             initial={{ scale: 50, opacity: 0.8 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ 
-              duration: 1, 
+            transition={{
+              duration: 1,
               ease: "easeIn"
             }}
             className="relative"
@@ -72,7 +72,7 @@ export function StampAcquisitionScreen({ onComplete }: StampAcquisitionScreenPro
             {/* スタンプ画像 */}
             <div className="relative">
               <img
-                src={stampImage}
+                src={stampImage.src}
                 alt="温泉スタンプ"
                 className="w-48 h-48 object-contain relative z-10"
                 style={{
@@ -83,32 +83,15 @@ export function StampAcquisitionScreen({ onComplete }: StampAcquisitionScreenPro
                   `,
                 }}
               />
-              
+
               {/* 白いノイズテクスチャオーバーレイ */}
-              <div 
+              <div
                 className="absolute inset-0 w-48 h-48 opacity-25 pointer-events-none z-20"
                 style={{
                   backgroundImage: `url(${noiseTexture})`,
                   backgroundSize: '200px 200px',
                   backgroundRepeat: 'repeat',
                   mixBlendMode: 'screen',
-                  mask: `url(${stampImage})`,
-                  maskSize: 'contain',
-                  maskRepeat: 'no-repeat',
-                  maskPosition: 'center',
-                  WebkitMask: `url(${stampImage})`,
-                  WebkitMaskSize: 'contain',
-                  WebkitMaskRepeat: 'no-repeat',
-                  WebkitMaskPosition: 'center'
-                }}
-              />
-
-              {/* 印影効果 */}
-              <div 
-                className="absolute inset-0 w-48 h-48 opacity-25 pointer-events-none z-15"
-                style={{
-                  background: `radial-gradient(ellipse at center, transparent 50%, rgba(93, 104, 138, 0.4) 65%, rgba(93, 104, 138, 0.6) 75%, transparent 90%)`,
-                  mixBlendMode: 'multiply',
                   mask: `url(${stampImage})`,
                   maskSize: 'contain',
                   maskRepeat: 'no-repeat',
