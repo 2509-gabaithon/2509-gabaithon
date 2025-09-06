@@ -156,7 +156,7 @@ export function NewLocationCheckScreen({ onBack, onStartBathing }: NewLocationCh
       <Card className="absolute bottom-4 left-4 right-4 z-10">
         <CardContent className="pt-4">
           <div className="text-center">
-            <h3 className="font-bold mb-2">📍 位置確認</h3>
+            <h3 className="font-bold mb-2 flex justify-center items-center"><MapPin className="mr-2 text-[#F8447E]" /> 位置確認</h3>
             <div className="space-y-1 text-sm text-app-base-light">
               <p>• 温泉から50m以内で入浴可能</p>
               <p>• {isNearOnsen ? 'もちもちうさぎが温泉を見つけました！' : 'もう少し温泉に近づいてください'}</p>
