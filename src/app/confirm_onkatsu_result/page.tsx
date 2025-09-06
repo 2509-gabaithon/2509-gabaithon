@@ -24,7 +24,7 @@ export default function ConfirmOnkatsuResult() {
   };
 
   const handleContinue = () => {
-    console.log("続けるボタンが押されました");
+    console.log("キャラクター画面へ移動");
   };
 
   return (
