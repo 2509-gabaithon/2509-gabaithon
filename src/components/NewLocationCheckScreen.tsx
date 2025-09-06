@@ -3,12 +3,15 @@ import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { ArrowLeft, MapPin, Navigation } from 'lucide-react';
 
-import kawaiiImage from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
 import mapImage from '@/assets/1a0f3b4eaaf666c678218990a5f3915504e73d9c.png';
+import beppyonImage from "@/assets/3c6e9e82c814a4dcb5208e61977d5118a50e6a2c.png";
+import yuttsuraImage from "@/assets/cc82c1498637df3406caa6867e011e9f0b8813d7.png";
+import kawaiiImage from "@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png";
 
 interface NewLocationCheckScreenProps {
   onBack: () => void;
   onStartBathing: () => void;
+  character: { name: string, type: string };
 }
 
 // 温泉の位置データ（箱根湯本温泉の座標）
@@ -19,7 +22,7 @@ const HAKONE_YUMOTO_LNG = 139.1069;
 const SIMULATED_USER_LAT = 35.2318; // 少し南
 const SIMULATED_USER_LNG = 139.1065; // 少し西
 
-export function NewLocationCheckScreen({ onBack, onStartBathing }: NewLocationCheckScreenProps) {
+export function NewLocationCheckScreen({ onBack, onStartBathing, character }: NewLocationCheckScreenProps) {
   const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
   const [isNearOnsen, setIsNearOnsen] = useState(false);
   const [distance, setDistance] = useState<number>(0);
@@ -56,7 +59,19 @@ export function NewLocationCheckScreen({ onBack, onStartBathing }: NewLocationCh
     setIsNearOnsen(dist <= 500); // 500m以内なら温泉の近く
   }, []);
 
-
+  // キャラクターの種類に応じて画像を選択
+  const getCharacterImage = () => {
+    switch (character.type) {
+      case "onsen-chan":
+        return beppyonImage;
+      case "yuzu-kun":
+        return yuttsuraImage;
+      case "sakura-san":
+        return kawaiiImage;
+      default:
+        return beppyonImage;
+    }
+  };
 
   return (
     <div className="h-screen relative overflow-hidden">
@@ -92,7 +107,7 @@ export function NewLocationCheckScreen({ onBack, onStartBathing }: NewLocationCh
               {/* 位置の円 */}
               <div className="w-14 h-14 bg-app-accent-2 rounded-full border-3 border-white shadow-xl flex items-center justify-center relative overflow-hidden">
                 <img
-                  src={kawaiiImage.src}
+                  src={getCharacterImage().src}
                   alt="もちもちうさぎ"
                   className="w-11 h-11 object-contain"
                 />
@@ -143,8 +158,8 @@ export function NewLocationCheckScreen({ onBack, onStartBathing }: NewLocationCh
               </div>
             </div>
             <div className={`px-3 py-1 rounded-full text-xs font-medium ${isNearOnsen
-                ? 'bg-green-100 text-green-800'
-                : 'bg-orange-100 text-orange-800'
+              ? 'bg-green-100 text-green-800'
+              : 'bg-orange-100 text-orange-800'
               }`}>
               {isNearOnsen ? '範囲内' : '範囲外'}
             </div>
@@ -159,7 +174,7 @@ export function NewLocationCheckScreen({ onBack, onStartBathing }: NewLocationCh
             <h3 className="font-bold mb-2 flex justify-center items-center"><MapPin className="mr-2 text-[#F8447E]" /> 位置確認</h3>
             <div className="space-y-1 text-sm text-app-base-light">
               <p>• 温泉から50m以内で入浴可能</p>
-              <p>• {isNearOnsen ? 'もちもちうさぎが温泉を見つけました！' : 'もう少し温泉に近づいてください'}</p>
+              <p>• {isNearOnsen ? `\`${character.name}\`が温泉を見つけました！` : 'もう少し温泉に近づいてください'}</p>
             </div>
           </div>
         </CardContent>
