@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { Star, Stamp, ArrowUp } from 'lucide-react';
-import stampImage from '@/assets/a8b69e84e6c8ec654b2bdf9a79607a4db01624d6.png';
 import noiseTexture from '@/assets/221bcc06007de28e2dedf86e88d0a2798eac78e7.png';
 
 interface ResultScreenProps {
@@ -90,7 +89,7 @@ export function ResultScreen({
                       <div className="relative w-24 h-24">
                         {/* スタンプ画像 */}
                         <img
-                          src={stampImage.src}
+                          src={acquiredStamp.icon}
                           alt="温泉スタンプ"
                           className="w-24 h-24 object-contain relative z-10"
                           style={{
@@ -110,11 +109,11 @@ export function ResultScreen({
                             backgroundSize: '100px 100px',
                             backgroundRepeat: 'repeat',
                             mixBlendMode: 'screen',
-                            mask: `url(${stampImage})`,
+                            mask: `url(${acquiredStamp.icon})`,
                             maskSize: 'contain',
                             maskRepeat: 'no-repeat',
                             maskPosition: 'center',
-                            WebkitMask: `url(${stampImage})`,
+                            WebkitMask: `url(${acquiredStamp.icon})`,
                             WebkitMaskSize: 'contain',
                             WebkitMaskRepeat: 'no-repeat',
                             WebkitMaskPosition: 'center'
