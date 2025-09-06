@@ -121,23 +121,6 @@ export function ResultScreen({
                           WebkitMaskPosition: 'center'
                         }}
                       />
-
-                      {/* 印影効果 */}
-                      <div 
-                        className="absolute inset-0 w-24 h-24 opacity-25 pointer-events-none z-15"
-                        style={{
-                          background: `radial-gradient(ellipse at center, transparent 50%, rgba(93, 104, 138, 0.4) 65%, rgba(93, 104, 138, 0.6) 75%, transparent 90%)`,
-                          mixBlendMode: 'multiply',
-                          mask: `url(${stampImage})`,
-                          maskSize: 'contain',
-                          maskRepeat: 'no-repeat',
-                          maskPosition: 'center',
-                          WebkitMask: `url(${stampImage})`,
-                          WebkitMaskSize: 'contain',
-                          WebkitMaskRepeat: 'no-repeat',
-                          WebkitMaskPosition: 'center'
-                        }}
-                      />
                     </div>
                   </div>
                   <p className="font-medium text-app-base mb-1">{acquiredStamp.name}</p>
