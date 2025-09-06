@@ -88,12 +88,12 @@ export function ResultScreen({
                     </span>
                   </div>
                   <Progress
-                    value={(expGained / 100) * 100}
+                    value={character.exp / character.maxExp * 100}
                     className="h-3 bg-app-accent-2-light"
                   />
                   <div className="flex justify-between text-xs text-app-base-light mt-1">
                     <span>0</span>
-                    <span>{expGained} / 100</span>
+                    <span>{character.exp} / {character.maxExp}</span>
                   </div>
                 </div>
               </div>
