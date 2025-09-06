@@ -89,7 +89,7 @@ export function StampAcquisitionScreen({
               <div
                 className="absolute inset-0 w-48 h-48 opacity-25 pointer-events-none z-20"
                 style={{
-                  backgroundImage: `url(${noiseTexture})`,
+                  backgroundImage: `url(${noiseTexture.src})`,
                   backgroundSize: "200px 200px",
                   backgroundRepeat: "repeat",
                   mixBlendMode: "screen",
