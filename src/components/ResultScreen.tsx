@@ -47,7 +47,7 @@ export function ResultScreen({
           <CardContent className="pt-6">
             <div className="text-center">
               <img
-                src={characterImage}
+                src={characterImage.src}
                 alt={character.name}
                 className="w-24 h-24 mx-auto object-contain mb-4"
               />
@@ -91,7 +91,7 @@ export function ResultScreen({
                     <div className="relative w-24 h-24">
                       {/* スタンプ画像 */}
                       <img
-                        src={stampImage}
+                        src={stampImage.src}
                         alt="温泉スタンプ"
                         className="w-24 h-24 object-contain relative z-10"
                         style={{
