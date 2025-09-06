@@ -183,7 +183,7 @@ export function TitleScreen({ onStart, onSettings }: TitleScreenProps) {
         <div className="text-center mb-8">
           <div className="relative mb-6">
             <img
-              src={logoImage}
+              src={logoImage.src}
               alt="温泉スタンプラリー"
               className="w-64 h-auto mx-auto drop-shadow-lg"
             />
@@ -197,7 +197,7 @@ export function TitleScreen({ onStart, onSettings }: TitleScreenProps) {
         <div className="relative mb-12 w-full">
           <div className="w-full h-48 bg-white/10 shadow-2xl relative overflow-visible">
             <img
-              src={characterImage}
+              src={characterImage.src}
               alt="温泉キャラクター"
               className="w-64 h-64 object-contain absolute top-1/2 left-1/2 character-pulse"
             />
