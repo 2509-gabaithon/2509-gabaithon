@@ -20,7 +20,7 @@ const SIMULATED_USER_LAT = 35.2318; // 少し南
 const SIMULATED_USER_LNG = 139.1065; // 少し西
 
 export function NewLocationCheckScreen({ onBack, onStartBathing }: NewLocationCheckScreenProps) {
-  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
   const [isNearOnsen, setIsNearOnsen] = useState(false);
   const [distance, setDistance] = useState<number>(0);
 
@@ -29,11 +29,11 @@ export function NewLocationCheckScreen({ onBack, onStartBathing }: NewLocationCh
     const R = 6371000; // 地球の半径（メートル）
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLng = (lng2 - lng1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLng/2) * Math.sin(dLng/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };
 
@@ -51,7 +51,7 @@ export function NewLocationCheckScreen({ onBack, onStartBathing }: NewLocationCh
       HAKONE_YUMOTO_LAT,
       HAKONE_YUMOTO_LNG
     );
-    
+
     setDistance(Math.round(dist));
     setIsNearOnsen(dist <= 500); // 500m以内なら温泉の近く
   }, []);
@@ -63,9 +63,9 @@ export function NewLocationCheckScreen({ onBack, onStartBathing }: NewLocationCh
       {/* マップエリア - 画面全体 */}
       <div className="absolute inset-0">
         {/* 地図画像背景 */}
-        <img 
-          src={mapImage} 
-          alt="箱根エリア地図" 
+        <img
+          src={mapImage.src}
+          alt="箱根エリア地図"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
         {/* 地図の上にオーバーレイ */}
@@ -92,12 +92,12 @@ export function NewLocationCheckScreen({ onBack, onStartBathing }: NewLocationCh
               {/* 位置の円 */}
               <div className="w-14 h-14 bg-app-accent-2 rounded-full border-3 border-white shadow-xl flex items-center justify-center relative overflow-hidden">
                 <img
-                  src={kawaiiImage}
+                  src={kawaiiImage.src}
                   alt="もちもちうさぎ"
                   className="w-11 h-11 object-contain"
                 />
               </div>
-              
+
               {/* 現在地のラベル */}
               <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
                 <div className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg shadow-md">
@@ -120,7 +120,7 @@ export function NewLocationCheckScreen({ onBack, onStartBathing }: NewLocationCh
           </div>
         )}
       </div>
-      
+
       {/* ヘッダー - オーバーレイ */}
       <div className="absolute top-0 left-0 right-0 z-10 flex items-center p-4 bg-white/80 backdrop-blur-sm">
         <Button variant="ghost" onClick={onBack} className="mr-2 p-2">
@@ -142,11 +142,10 @@ export function NewLocationCheckScreen({ onBack, onStartBathing }: NewLocationCh
                 </p>
               </div>
             </div>
-            <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-              isNearOnsen 
-                ? 'bg-green-100 text-green-800' 
+            <div className={`px-3 py-1 rounded-full text-xs font-medium ${isNearOnsen
+                ? 'bg-green-100 text-green-800'
                 : 'bg-orange-100 text-orange-800'
-            }`}>
+              }`}>
               {isNearOnsen ? '範囲内' : '範囲外'}
             </div>
           </div>
