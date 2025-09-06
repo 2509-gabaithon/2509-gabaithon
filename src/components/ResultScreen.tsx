@@ -21,7 +21,7 @@ interface ResultScreenProps {
     maxExp: number;
   };
   acquiredStamp: { name: string; icon: string };
-  onNavigateToDecoration: () => void;
+  onNavigateToCharacter: () => void;
 }
 
 export function ResultScreen({
@@ -30,7 +30,7 @@ export function ResultScreen({
   newLevel,
   character,
   acquiredStamp,
-  onNavigateToDecoration,
+  onNavigateToCharacter,
 }: ResultScreenProps) {
   // キャラクターの種類に応じて画像を選択
   const getCharacterImage = () => {
@@ -158,7 +158,7 @@ export function ResultScreen({
             </CardContent>
           </Card>
 
-          <Button size="lg" className="w-full" onClick={onNavigateToDecoration}>
+          <Button size="lg" className="w-full" onClick={onNavigateToCharacter}>
             キャラクター画面に戻る
           </Button>
         </div>

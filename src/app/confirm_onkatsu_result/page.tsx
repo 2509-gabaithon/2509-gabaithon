@@ -19,7 +19,7 @@ export default function ConfirmOnkatsuResult() {
     icon: onsenStamp.src,
   };
 
-  const handleNavigateToDecoration = () => {
+  const handleNavigateToCharacter = () => {
     console.log("キャラクター画面へ移動");
   };
 
@@ -29,7 +29,7 @@ export default function ConfirmOnkatsuResult() {
       levelUp={levelUp}
       character={character}
       acquiredStamp={acquiredStamp}
-      onNavigateToDecoration={handleNavigateToDecoration}
+      onNavigateToCharacter={handleNavigateToCharacter}
     />
   );
 }
