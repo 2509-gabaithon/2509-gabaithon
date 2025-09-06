@@ -5,12 +5,16 @@ import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { Star, Stamp, ArrowUp } from 'lucide-react';
 import noiseTexture from '@/assets/221bcc06007de28e2dedf86e88d0a2798eac78e7.png';
+import beppyonImage from "@/assets/3c6e9e82c814a4dcb5208e61977d5118a50e6a2c.png";
+import yuttsuraImage from "@/assets/cc82c1498637df3406caa6867e011e9f0b8813d7.png";
+import kawaiiImage from "@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png";
+import { type } from 'os';
 
 interface ResultScreenProps {
   expGained: number;
   levelUp: boolean;
   newLevel?: number;
-  character: { image: string; name: string; level: number; exp: number; maxExp: number };
+  character: { name: string; type: string; level: number; exp: number; maxExp: number };
   acquiredStamp: { name: string; icon: string };
   onNavigateToDecoration: () => void;
 }
@@ -23,6 +27,22 @@ export function ResultScreen({
   acquiredStamp,
   onNavigateToDecoration
 }: ResultScreenProps) {
+
+  // キャラクターの種類に応じて画像を選択
+  const getCharacterImage = () => {
+    switch (character.type) {
+      case "onsen-chan":
+        return beppyonImage;
+      case "yuzu-kun":
+        return yuttsuraImage;
+      case "sakura-san":
+        return kawaiiImage;
+      default:
+        return beppyonImage;
+    }
+  };
+
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-app-base via-app-main-dark to-app-main relative overflow-hidden">
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -45,7 +65,7 @@ export function ResultScreen({
             <CardContent className="pt-6">
               <div className="text-center">
                 <img
-                  src={character.image}
+                  src={getCharacterImage().src}
                   alt={character.name}
                   className="w-24 h-24 mx-auto object-contain mb-4"
                 />
