@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { Star, Stamp, ArrowUp } from 'lucide-react';
-import characterImage from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
 import stampImage from '@/assets/a8b69e84e6c8ec654b2bdf9a79607a4db01624d6.png';
 import noiseTexture from '@/assets/221bcc06007de28e2dedf86e88d0a2798eac78e7.png';
 
@@ -12,18 +11,18 @@ interface ResultScreenProps {
   expGained: number;
   levelUp: boolean;
   newLevel?: number;
-  character: { name: string; level: number; exp: number; maxExp: number };
+  character: { image: string; name: string; level: number; exp: number; maxExp: number };
   acquiredStamp: { name: string; icon: string };
-  onContinue: () => void;
+  onNavigateToDecoration: () => void;
 }
 
 export function ResultScreen({
-  expGained, 
-  levelUp, 
-  newLevel, 
+  expGained,
+  levelUp,
+  newLevel,
   character,
   acquiredStamp,
-  onContinue 
+  onNavigateToDecoration
 }: ResultScreenProps) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-app-base via-app-main-dark to-app-main relative overflow-hidden">
@@ -43,98 +42,98 @@ export function ResultScreen({
             <h2 className="text-2xl text-white">オンカツ完了！</h2>
           </div>
 
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <img
-                src={characterImage.src}
-                alt={character.name}
-                className="w-24 h-24 mx-auto object-contain mb-4"
-              />
-              <h3 className="text-xl font-bold mb-6">{character.name}</h3>
-              
-              {/* 獲得経験値プログレスバー */}
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center">
-                    <Star className="h-5 w-5 text-app-accent-1-dark mr-2" />
-                    <span className="text-sm text-app-base-light">獲得経験値</span>
-                  </div>
-                  <span className="font-bold text-app-accent-1-dark">+{expGained} EXP</span>
-                </div>
-                <Progress 
-                  value={(expGained / 100) * 100} 
-                  className="h-3 bg-app-accent-2-light"
+          <Card className="mb-6">
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <img
+                  src={character.image}
+                  alt={character.name}
+                  className="w-24 h-24 mx-auto object-contain mb-4"
                 />
-                <div className="flex justify-between text-xs text-app-base-light mt-1">
-                  <span>0</span>
-                  <span>{expGained} / 100</span>
+                <h3 className="text-xl font-bold mb-6">{character.name}</h3>
+
+                {/* 獲得経験値プログレスバー */}
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center">
+                      <Star className="h-5 w-5 text-app-accent-1-dark mr-2" />
+                      <span className="text-sm text-app-base-light">獲得経験値</span>
+                    </div>
+                    <span className="font-bold text-app-accent-1-dark">+{expGained} EXP</span>
+                  </div>
+                  <Progress
+                    value={(expGained / 100) * 100}
+                    className="h-3 bg-app-accent-2-light"
+                  />
+                  <div className="flex justify-between text-xs text-app-base-light mt-1">
+                    <span>0</span>
+                    <span>{expGained} / 100</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-center flex items-center justify-center">
-              <Stamp className="h-5 w-5 mr-2 text-app-base" />
-              獲得スタンプ
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <div className="flex justify-center">
-                <div className="p-6 bg-app-accent-1-light rounded-lg">
-                  {/* リアルなスタンプ表示 */}
-                  <div className="relative mb-3 flex justify-center">
-                    <div className="relative w-24 h-24">
-                      {/* スタンプ画像 */}
-                      <img
-                        src={stampImage.src}
-                        alt="温泉スタンプ"
-                        className="w-24 h-24 object-contain relative z-10"
-                        style={{
-                          filter: `
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="text-center flex items-center justify-center">
+                <Stamp className="h-5 w-5 mr-2 text-app-base" />
+                獲得スタンプ
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center">
+                <div className="flex justify-center">
+                  <div className="p-6 bg-app-accent-1-light rounded-lg">
+                    {/* リアルなスタンプ表示 */}
+                    <div className="relative mb-3 flex justify-center">
+                      <div className="relative w-24 h-24">
+                        {/* スタンプ画像 */}
+                        <img
+                          src={stampImage.src}
+                          alt="温泉スタンプ"
+                          className="w-24 h-24 object-contain relative z-10"
+                          style={{
+                            filter: `
                             contrast(1.2) 
                             brightness(0.9)
                             sepia(0.1)
                           `,
-                        }}
-                      />
-                      
-                      {/* 白いノイズテクスチャオーバーレイ */}
-                      <div 
-                        className="absolute inset-0 w-24 h-24 opacity-25 pointer-events-none z-20"
-                        style={{
-                          backgroundImage: `url(${noiseTexture})`,
-                          backgroundSize: '100px 100px',
-                          backgroundRepeat: 'repeat',
-                          mixBlendMode: 'screen',
-                          mask: `url(${stampImage})`,
-                          maskSize: 'contain',
-                          maskRepeat: 'no-repeat',
-                          maskPosition: 'center',
-                          WebkitMask: `url(${stampImage})`,
-                          WebkitMaskSize: 'contain',
-                          WebkitMaskRepeat: 'no-repeat',
-                          WebkitMaskPosition: 'center'
-                        }}
-                      />
+                          }}
+                        />
+
+                        {/* 白いノイズテクスチャオーバーレイ */}
+                        <div
+                          className="absolute inset-0 w-24 h-24 opacity-25 pointer-events-none z-20"
+                          style={{
+                            backgroundImage: `url(${noiseTexture})`,
+                            backgroundSize: '100px 100px',
+                            backgroundRepeat: 'repeat',
+                            mixBlendMode: 'screen',
+                            mask: `url(${stampImage})`,
+                            maskSize: 'contain',
+                            maskRepeat: 'no-repeat',
+                            maskPosition: 'center',
+                            WebkitMask: `url(${stampImage})`,
+                            WebkitMaskSize: 'contain',
+                            WebkitMaskRepeat: 'no-repeat',
+                            WebkitMaskPosition: 'center'
+                          }}
+                        />
+                      </div>
                     </div>
+                    <p className="font-medium text-app-base mb-1">{acquiredStamp.name}</p>
+                    <Badge className="bg-app-main">新規獲得</Badge>
                   </div>
-                  <p className="font-medium text-app-base mb-1">{acquiredStamp.name}</p>
-                  <Badge className="bg-app-main">新規獲得</Badge>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-          <Button 
-            size="lg" 
+          <Button
+            size="lg"
             className="w-full"
-            onClick={onContinue}
+            onClick={onNavigateToDecoration}
           >
             キャラクター画面に戻る
           </Button>
