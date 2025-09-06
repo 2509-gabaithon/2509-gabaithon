@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-import stampImage from '@/assets/23d72f267674d7a86e5a4d3966ba367d52634bd9.png';
-import noiseTexture from '@/assets/221bcc06007de28e2dedf86e88d0a2798eac78e7.png';
+import React, { useState, useEffect } from "react";
+import { motion } from "motion/react";
+import noiseTexture from "@/assets/221bcc06007de28e2dedf86e88d0a2798eac78e7.png";
 
 interface StampAcquisitionScreenProps {
   onComplete: () => void;
+  acquiredStamp: { name: string; icon: string };
 }
 
-export function StampAcquisitionScreen({ onComplete }: StampAcquisitionScreenProps) {
+export function StampAcquisitionScreen({
+  onComplete,
+  acquiredStamp,
+}: StampAcquisitionScreenProps) {
   const [stampAnimationComplete, setStampAnimationComplete] = useState(false);
   const [showTapMessage, setShowTapMessage] = useState(false);
   const [canInteract, setCanInteract] = useState(false);
@@ -52,9 +55,7 @@ export function StampAcquisitionScreen({ onComplete }: StampAcquisitionScreenPro
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <h1 className="text-2xl text-center text-app-base">
-            スタンプ獲得！
-          </h1>
+          <h1 className="text-2xl text-center text-app-base">スタンプ獲得！</h1>
         </motion.div>
 
         {/* スタンプアニメーション */}
@@ -64,7 +65,7 @@ export function StampAcquisitionScreen({ onComplete }: StampAcquisitionScreenPro
             animate={{ scale: 1, opacity: 1 }}
             transition={{
               duration: 1,
-              ease: "easeIn"
+              ease: "easeIn",
             }}
             className="relative"
             onAnimationComplete={() => setStampAnimationComplete(true)}
@@ -72,8 +73,8 @@ export function StampAcquisitionScreen({ onComplete }: StampAcquisitionScreenPro
             {/* スタンプ画像 */}
             <div className="relative">
               <img
-                src={stampImage.src}
-                alt="温泉スタンプ"
+                src={acquiredStamp.icon}
+                alt={acquiredStamp.name}
                 className="w-48 h-48 object-contain relative z-10"
                 style={{
                   filter: `
@@ -89,17 +90,17 @@ export function StampAcquisitionScreen({ onComplete }: StampAcquisitionScreenPro
                 className="absolute inset-0 w-48 h-48 opacity-25 pointer-events-none z-20"
                 style={{
                   backgroundImage: `url(${noiseTexture})`,
-                  backgroundSize: '200px 200px',
-                  backgroundRepeat: 'repeat',
-                  mixBlendMode: 'screen',
-                  mask: `url(${stampImage})`,
-                  maskSize: 'contain',
-                  maskRepeat: 'no-repeat',
-                  maskPosition: 'center',
-                  WebkitMask: `url(${stampImage})`,
-                  WebkitMaskSize: 'contain',
-                  WebkitMaskRepeat: 'no-repeat',
-                  WebkitMaskPosition: 'center'
+                  backgroundSize: "200px 200px",
+                  backgroundRepeat: "repeat",
+                  mixBlendMode: "screen",
+                  mask: `url(${acquiredStamp.icon})`,
+                  maskSize: "contain",
+                  maskRepeat: "no-repeat",
+                  maskPosition: "center",
+                  WebkitMask: `url(${acquiredStamp.icon})`,
+                  WebkitMaskSize: "contain",
+                  WebkitMaskRepeat: "no-repeat",
+                  WebkitMaskPosition: "center",
                 }}
               />
             </div>
