@@ -3,7 +3,10 @@
 import { TitleScreen } from "@/components/TitleScreen";
 
 export default function Title() {
+   const clickSound = new Audio("/clickSound.mp3");
+
   const handleStart = () => {
+    clickSound.play();
     console.log("タイトル画面クリック → ゲーム開始！");
   };
 
