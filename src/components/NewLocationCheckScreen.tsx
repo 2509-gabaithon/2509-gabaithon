@@ -87,7 +87,7 @@ export function NewLocationCheckScreen({ onBack, onStartBathing }: NewLocationCh
 
         {/* 現在地（もちもちうさぎ） - 温泉の近くに配置 */}
         {userLocation && (
-          <div className="absolute top-1/3 left-1/4 transform -translate-x-1/2 -translate-y-1/2 translate-x-12 translate-y-6">
+          <div className="absolute top-1/3 left-1/4 transform translate-x-12 translate-y-6">
             <div className="relative">
               {/* 位置の円 */}
               <div className="w-14 h-14 bg-app-accent-2 rounded-full border-3 border-white shadow-xl flex items-center justify-center relative overflow-hidden">
