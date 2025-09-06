@@ -1,20 +1,25 @@
-import React from 'react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { Progress } from './ui/progress';
-import { Star, Stamp, ArrowUp } from 'lucide-react';
-import noiseTexture from '@/assets/221bcc06007de28e2dedf86e88d0a2798eac78e7.png';
+import React from "react";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Progress } from "./ui/progress";
+import { Star, Stamp, ArrowUp } from "lucide-react";
+import noiseTexture from "@/assets/221bcc06007de28e2dedf86e88d0a2798eac78e7.png";
 import beppyonImage from "@/assets/3c6e9e82c814a4dcb5208e61977d5118a50e6a2c.png";
 import yuttsuraImage from "@/assets/cc82c1498637df3406caa6867e011e9f0b8813d7.png";
 import kawaiiImage from "@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png";
-import { type } from 'os';
 
 interface ResultScreenProps {
   expGained: number;
   levelUp: boolean;
   newLevel?: number;
-  character: { name: string; type: string; level: number; exp: number; maxExp: number };
+  character: {
+    name: string;
+    type: string;
+    level: number;
+    exp: number;
+    maxExp: number;
+  };
   acquiredStamp: { name: string; icon: string };
   onNavigateToDecoration: () => void;
 }
@@ -25,9 +30,8 @@ export function ResultScreen({
   newLevel,
   character,
   acquiredStamp,
-  onNavigateToDecoration
+  onNavigateToDecoration,
 }: ResultScreenProps) {
-
   // キャラクターの種類に応じて画像を選択
   const getCharacterImage = () => {
     switch (character.type) {
@@ -41,7 +45,6 @@ export function ResultScreen({
         return beppyonImage;
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-app-base via-app-main-dark to-app-main relative overflow-hidden">
@@ -76,9 +79,13 @@ export function ResultScreen({
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
                       <Star className="h-5 w-5 text-app-accent-1-dark mr-2" />
-                      <span className="text-sm text-app-base-light">獲得経験値</span>
+                      <span className="text-sm text-app-base-light">
+                        獲得経験値
+                      </span>
                     </div>
-                    <span className="font-bold text-app-accent-1-dark">+{expGained} EXP</span>
+                    <span className="font-bold text-app-accent-1-dark">
+                      +{expGained} EXP
+                    </span>
                   </div>
                   <Progress
                     value={(expGained / 100) * 100}
@@ -126,22 +133,24 @@ export function ResultScreen({
                           className="absolute inset-0 w-24 h-24 opacity-25 pointer-events-none z-20"
                           style={{
                             backgroundImage: `url(${noiseTexture})`,
-                            backgroundSize: '100px 100px',
-                            backgroundRepeat: 'repeat',
-                            mixBlendMode: 'screen',
+                            backgroundSize: "100px 100px",
+                            backgroundRepeat: "repeat",
+                            mixBlendMode: "screen",
                             mask: `url(${acquiredStamp.icon})`,
-                            maskSize: 'contain',
-                            maskRepeat: 'no-repeat',
-                            maskPosition: 'center',
+                            maskSize: "contain",
+                            maskRepeat: "no-repeat",
+                            maskPosition: "center",
                             WebkitMask: `url(${acquiredStamp.icon})`,
-                            WebkitMaskSize: 'contain',
-                            WebkitMaskRepeat: 'no-repeat',
-                            WebkitMaskPosition: 'center'
+                            WebkitMaskSize: "contain",
+                            WebkitMaskRepeat: "no-repeat",
+                            WebkitMaskPosition: "center",
                           }}
                         />
                       </div>
                     </div>
-                    <p className="font-medium text-app-base mb-1">{acquiredStamp.name}</p>
+                    <p className="font-medium text-app-base mb-1">
+                      {acquiredStamp.name}
+                    </p>
                     <Badge className="bg-app-main">新規獲得</Badge>
                   </div>
                 </div>
@@ -149,11 +158,7 @@ export function ResultScreen({
             </CardContent>
           </Card>
 
-          <Button
-            size="lg"
-            className="w-full"
-            onClick={onNavigateToDecoration}
-          >
+          <Button size="lg" className="w-full" onClick={onNavigateToDecoration}>
             キャラクター画面に戻る
           </Button>
         </div>
