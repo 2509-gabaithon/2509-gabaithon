@@ -132,7 +132,7 @@ export function ResultScreen({
                         <div
                           className="absolute inset-0 w-24 h-24 opacity-25 pointer-events-none z-20"
                           style={{
-                            backgroundImage: `url(${noiseTexture})`,
+                            backgroundImage: `url(${noiseTexture.src})`,
                             backgroundSize: "100px 100px",
                             backgroundRepeat: "repeat",
                             mixBlendMode: "screen",
