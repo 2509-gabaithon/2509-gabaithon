@@ -18,7 +18,7 @@ interface Quest {
 
 interface QuestListScreenProps {
   onBack: () => void;
-  onSelectOnsen: (onsen: any) => void;
+  onSelectQuest: (quest: any) => void;
   onTabChange?: (tab: TabType) => void;
 }
 
@@ -46,7 +46,7 @@ const mockQuests: Quest[] = [
   }
 ];
 
-export function StampRallyScreen({ onBack, onSelectOnsen, onTabChange }: QuestListScreenProps) {
+export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestListScreenProps) {
   const completedCount = mockQuests.filter(quest => quest.completed).length;
   const totalCount = mockQuests.length;
   const progressPercentage = (completedCount / totalCount) * 100;
@@ -120,7 +120,7 @@ export function StampRallyScreen({ onBack, onSelectOnsen, onTabChange }: QuestLi
               className={`cursor-pointer transition-all bg-white/95 backdrop-blur-sm border-white/20 ${
                 quest.completed ? 'border-app-main shadow-lg' : 'hover:shadow-md hover:bg-white'
               }`}
-              onClick={() => onSelectOnsen(quest)}
+              onClick={() => onSelectQuest(quest)}
             >
               <CardContent className="p-4">
                 <div className="flex items-center">
