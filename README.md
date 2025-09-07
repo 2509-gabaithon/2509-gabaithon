@@ -24,7 +24,7 @@
 memo
 ```
 supabase db dump --local -f supabase/schema.sql
-supabase gen types typescript --local > types/supabase.ts
+supabase gen types typescript --local > src/types/supabase.ts
 supabase db dump -f supabase/seed.sql --data-only --local
 supabase db pull --local
 supabase db push
