@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent } from './ui/card';
 import { Input } from './ui/input';
-import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ArrowLeft } from 'lucide-react';
 import kawaiiImage from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
 
@@ -89,8 +88,8 @@ export function CharacterNameInputScreen({ userName, characterName = '', onBack,
             </CardContent>
           </Card>
 
-          <Button 
-            size="lg" 
+          <Button
+            size="lg"
             className="w-full"
             onClick={handleComplete}
             disabled={!inputName.trim()}
