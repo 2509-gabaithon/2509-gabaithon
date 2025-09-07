@@ -58,7 +58,7 @@ export function CharacterNameInputScreen({ userName, characterName = '', onBack,
               <div className="flex flex-col items-center text-center">
                 <div className="w-24 h-24 rounded-full mb-4 overflow-hidden bg-app-accent-2 flex items-center justify-center shadow-lg">
                   <img
-                    src={defaultCharacter.image}
+                    src={defaultCharacter.image.src}
                     alt="パートナーキャラクター"
                     className="w-20 h-20 object-contain"
                   />
