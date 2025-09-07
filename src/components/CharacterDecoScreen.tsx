@@ -47,30 +47,15 @@ const mockDecoItems: DecoItem[] = [
 
 export function CharacterDecoScreen({ onBack, character, onTabChange }: CharacterDecoScreenProps) {
   const [items, setItems] = useState(mockDecoItems);
-  const [coins, setCoins] = useState(85); // プレイヤーのコイン数
-
-
 
   const equipItem = (itemId: string) => {
     setItems(prev => prev.map(item => {
       if (item.id === itemId) {
-        // 同じタイプの他のアイテムを装備解除
-        const updatedItems = prev.map(prevItem => 
-          prevItem.type === item.type && prevItem.id !== itemId 
-            ? { ...prevItem, equipped: false }
-            : prevItem
-        );
         return { ...item, equipped: !item.equipped };
       }
       return item;
     }));
   };
-
-
-
-
-
-  const equippedItems = items.filter(item => item.equipped);
 
   const handleTabChange = (tab: TabType) => {
     if (onTabChange) {
