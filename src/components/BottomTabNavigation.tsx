@@ -1,7 +1,7 @@
 import React from 'react';
 import { Home, Settings, Droplets } from 'lucide-react';
 
-export type TabType = 'home' | 'bathing' | 'settings';
+export type TabType = 'home' | 'bathing' | 'settings' | 'none';
 
 interface BottomTabNavigationProps {
   activeTab: TabType;
