@@ -1,5 +1,15 @@
+import { NameInputScreen } from "@/components/NameInputScreen";
+
 export default function SetUserName() {
+
+  const handleNext = (userName: string) => {
+    console.log("ユーザー名が設定されました:", userName);
+  }
+
   return (
-    <>ユーザーネーム入力画面</>
+    <NameInputScreen
+      userName="ユーザー名"
+      onNext={handleNext}
+    />
   )
 }
