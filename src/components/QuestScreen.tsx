@@ -3,7 +3,6 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
-import { ImageWithFallback } from './figma/ImageWithFallback';
 import { CheckCircle, ArrowLeft, Sparkles } from 'lucide-react';
 import { BottomTabNavigation, TabType } from './BottomTabNavigation';
 import stampImage from '@/assets/23d72f267674d7a86e5a4d3966ba367d52634bd9.png';
