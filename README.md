@@ -20,3 +20,12 @@
 1. `npx supabase start` します（通常5-10分程度の初期化が入ります）
 2. 起動が終了すると、コンソールに URL などの情報が書き出されます
    - アプリが使用する DB をこれにしたい場合、`.env` ファイルの中身を書き換えてください
+
+memo
+```
+supabase db dump --local -f supabase/schema.sql
+supabase gen types typescript --local > types/supabase.ts
+supabase db dump -f supabase/seed.sql --data-only --local
+supabase db pull --local
+supabase db push
+```
