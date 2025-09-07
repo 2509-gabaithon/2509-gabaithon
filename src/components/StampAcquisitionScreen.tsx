@@ -55,7 +55,7 @@ export function StampAcquisitionScreen({
           transition={{ duration: 0.5 }}
           className="mb-8"
         >
-          <h1 className="text-2xl text-center text-app-base">スタンプ獲得！</h1>
+          <h1 className="text-2xl text-center text-app-base">クエスト完了！</h1>
         </motion.div>
 
         {/* スタンプアニメーション */}
