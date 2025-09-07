@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Button } from './ui/button';
-import { Card, CardContent } from './ui/card';
-import { Input } from './ui/input';
-import { ArrowLeft } from 'lucide-react';
-import kawaiiImage from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
-import { StaticImageData } from '../../node_modules/next/image';
+import React, { useState } from "react";
+import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
+import { Input } from "./ui/input";
+import { ArrowLeft } from "lucide-react";
+import kawaiiImage from "@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png";
+import { StaticImageData } from "../../node_modules/next/image";
 
 interface CharacterNameInputScreenProps {
   userName: string;
@@ -20,14 +20,22 @@ interface CharacterNameInputScreenProps {
 }
 
 const defaultCharacter = {
-  id: 'sakura-san',
-  name: 'もちもちうさぎ',
-  description: 'あなたの温泉パートナー',
-  image: kawaiiImage
+  id: "sakura-san",
+  name: "もちもちうさぎ",
+  description: "あなたの温泉パートナー",
+  image: kawaiiImage,
 };
 
-export function CharacterNameInputScreen({ userName, character, onBack, onCharacterNameChange, onComplete }: CharacterNameInputScreenProps) {
-  const [inputName, setInputName] = useState(character?.name || defaultCharacter.name);
+export function CharacterNameInputScreen({
+  userName, //現状使われていないが、バックの処理で必要になる可能性があるためpropsとして受け取る
+  character,
+  onBack,
+  onCharacterNameChange,
+  onComplete,
+}: CharacterNameInputScreenProps) {
+  const [inputName, setInputName] = useState(
+    character?.name || defaultCharacter.name
+  );
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;
@@ -45,7 +53,12 @@ export function CharacterNameInputScreen({ userName, character, onBack, onCharac
     <div className="min-h-screen bg-gradient-to-b from-app-base via-app-main-dark to-app-main relative">
       {/* Back button - fixed to top left */}
       <div className="absolute top-6 left-6 z-10">
-        <Button variant="ghost" size="icon" onClick={onBack} className="bg-white/20 hover:bg-white/30">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onBack}
+          className="bg-white/20 hover:bg-white/30"
+        >
           <ArrowLeft className="w-5 h-5 text-white" />
         </Button>
       </div>
@@ -55,7 +68,9 @@ export function CharacterNameInputScreen({ userName, character, onBack, onCharac
         <div className="max-w-md w-full">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-white mb-2">この子の名前は？</h1>
+            <h1 className="text-2xl font-bold text-white mb-2">
+              この子の名前は？
+            </h1>
           </div>
 
           {/* Character Display */}
@@ -69,7 +84,9 @@ export function CharacterNameInputScreen({ userName, character, onBack, onCharac
                     className="w-20 h-20 object-contain"
                   />
                 </div>
-                <p className="text-app-base-light mb-4">{character?.description || defaultCharacter.description}</p>
+                <p className="text-app-base-light mb-4">
+                  {character?.description || defaultCharacter.description}
+                </p>
               </div>
             </CardContent>
           </Card>

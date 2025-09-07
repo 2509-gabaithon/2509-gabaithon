@@ -1,16 +1,15 @@
 "use client";
 
 import { CharacterNameInputScreen } from "@/components/CharacterNameInputScreen";
-import kawaiiImage from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
+import kawaiiImage from "@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png";
 
 export default function SetCharacterName() {
-
   const userName = "ユーザー名";
   const character = {
     id: "sakura-san",
     name: "もちもちうさぎだよ",
     description: "あなたの温泉パートナー",
-    image: kawaiiImage
+    image: kawaiiImage,
   };
 
   const handleBack = () => {
@@ -28,10 +27,9 @@ export default function SetCharacterName() {
   return (
     <CharacterNameInputScreen
       userName={userName}
-      character={character}
       onBack={handleBack}
       onCharacterNameChange={handleCharacterNameChange}
       onComplete={handleComplete}
     />
-  )
+  );
 }
