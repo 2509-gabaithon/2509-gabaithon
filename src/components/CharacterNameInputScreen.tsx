@@ -4,7 +4,7 @@ import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { ArrowLeft } from "lucide-react";
 import kawaiiImage from "@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png";
-import { StaticImageData } from "../../node_modules/next/image";
+import { StaticImageData } from "next/image";
 
 interface CharacterNameInputScreenProps {
   userName: string;
