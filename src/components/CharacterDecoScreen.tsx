@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import kawaiiImage from 'figma:asset/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
+import kawaiiImage from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import { BottomTabNavigation, TabType } from './BottomTabNavigation';
 
@@ -133,7 +133,7 @@ export function CharacterDecoScreen({ onBack, character, onTabChange }: Characte
             <div className="text-center">
               <div className="relative w-32 h-32 mx-auto mb-4">
                 <img
-                  src={kawaiiImage}
+                  src={kawaiiImage.src}
                   alt={character.name}
                   className="w-full h-full object-contain"
                 />
