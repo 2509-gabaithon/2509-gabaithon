@@ -135,7 +135,7 @@ export function CharacterDecoScreen({ onBack, character, onTabChange }: Characte
       </div>
       
       <BottomTabNavigation 
-        activeTab="settings" 
+        activeTab="none" 
         onTabChange={handleTabChange}
       />
     </div>

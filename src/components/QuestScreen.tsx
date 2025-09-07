@@ -208,7 +208,7 @@ export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestLi
       </div>
       
       <BottomTabNavigation 
-        activeTab="bathing" 
+        activeTab="none" 
         onTabChange={handleTabChange}
       />
     </div>
