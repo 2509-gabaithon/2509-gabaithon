@@ -13,6 +13,7 @@ import { TimerScreen } from '@/components/TimerScreen';
 import { StampAcquisitionScreen } from '@/components/StampAcquisitionScreen';
 import { ResultScreen } from '@/components/ResultScreen';
 import { TabType } from '@/components/BottomTabNavigation';
+import mochiusa from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png'
 
 type ScreenType = 
   | 'title'
@@ -221,13 +222,13 @@ export default function App() {
       return <TitleScreen onStart={handleStart} onSettings={handleDebugSettings} />;
       
     case 'nameInput':
-      return <NameInputScreen onNext={handleNameInput} initialName={tempUserName} />;
+      return <NameInputScreen onNext={handleNameInput} userName={tempUserName} />;
       
     case 'characterSelect':
       return (
         <CharacterNameInputScreen 
           userName={tempUserName}
-          characterName={characterName}
+          character={{...character!, id: character!.type, description: 'ここにパートナーの説明が入る', image: mochiusa}}
           onBack={() => setCurrentScreen('nameInput')}
           onCharacterNameChange={handleCharacterNameChange}
           onComplete={handleCharacterSelect}
@@ -239,7 +240,6 @@ export default function App() {
       return (
         <HomeScreen 
           character={character}
-          userName={userData.name}
           onNavigateToStampRally={() => setCurrentScreen('stampRally')}
           onNavigateToDecoration={() => setCurrentScreen('decoration')}
           onTabChange={handleTabChange}
@@ -248,9 +248,9 @@ export default function App() {
       
     case 'stampRally':
       return (
-        <StampRallyScreen 
+        <QuestScreen 
           onBack={() => setCurrentScreen('home')}
-          onSelectOnsen={handleOnsenSelect}
+          onSelectQuest={handleOnsenSelect}
           onTabChange={handleTabChange}
         />
       );
@@ -278,6 +278,7 @@ export default function App() {
     case 'newLocationCheck':
       return (
         <NewLocationCheckScreen 
+          character={character!}
           onBack={() => setCurrentScreen('home')}
           onStartBathing={handleStartBathing}
         />
@@ -298,6 +299,7 @@ export default function App() {
     case 'stampAcquisition':
       return (
         <StampAcquisitionScreen 
+          acquiredStamp={acquiredStamp!}
           onComplete={handleStampAcquisitionComplete}
         />
       );
@@ -312,19 +314,12 @@ export default function App() {
       if (!acquiredStamp) return <div>Loading...</div>;
       return (
         <ResultScreen 
-          timeSpent={timeSpent}
-          onsen={{ name: '箱根湯本温泉', image: '', id: 1, location: '箱根', visited: true, distance: 0, difficulty: 'easy' }}
           expGained={expGained}
           levelUp={levelUp}
           newLevel={newLevel}
-          character={{
-            name: character.name,
-            level: character.level,
-            exp: character.exp,
-            maxExp: character.maxExp
-          }}
+          character={character}
           acquiredStamp={acquiredStamp}
-          onContinue={handleResultContinue}
+          onNavigateToCharacter={handleResultContinue}
         />
       );
       
