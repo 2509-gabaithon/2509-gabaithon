@@ -26,6 +26,7 @@ export default function SetCharacterName() {
 
   return (
     <CharacterNameInputScreen
+      character={character}
       userName={userName}
       onBack={handleBack}
       onCharacterNameChange={handleCharacterNameChange}

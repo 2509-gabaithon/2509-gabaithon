@@ -28,14 +28,12 @@ const defaultCharacter = {
 
 export function CharacterNameInputScreen({
   userName, //現状使われていないが、バックの処理で必要になる可能性があるためpropsとして受け取る
-  character,
+  character = defaultCharacter,
   onBack,
   onCharacterNameChange,
   onComplete,
 }: CharacterNameInputScreenProps) {
-  const [inputName, setInputName] = useState(
-    character?.name || defaultCharacter.name
-  );
+  const [inputName, setInputName] = useState(character.name);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;
@@ -79,13 +77,13 @@ export function CharacterNameInputScreen({
               <div className="flex flex-col items-center text-center">
                 <div className="w-24 h-24 rounded-full mb-4 overflow-hidden bg-app-accent-2 flex items-center justify-center shadow-lg">
                   <img
-                    src={character?.image.src || defaultCharacter.image.src}
+                    src={character.image.src}
                     alt="パートナーキャラクター"
                     className="w-20 h-20 object-contain"
                   />
                 </div>
                 <p className="text-app-base-light mb-4">
-                  {character?.description || defaultCharacter.description}
+                  {character.description}
                 </p>
               </div>
             </CardContent>
