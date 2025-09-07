@@ -6,8 +6,8 @@ import { Progress } from './ui/progress';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { CheckCircle, ArrowLeft, Sparkles } from 'lucide-react';
 import { BottomTabNavigation, TabType } from './BottomTabNavigation';
-import stampImage from 'figma:asset/23d72f267674d7a86e5a4d3966ba367d52634bd9.png';
-import noiseTexture from 'figma:asset/221bcc06007de28e2dedf86e88d0a2798eac78e7.png';
+import stampImage from '@/assets/23d72f267674d7a86e5a4d3966ba367d52634bd9.png';
+import noiseTexture from '@/assets/221bcc06007de28e2dedf86e88d0a2798eac78e7.png';
 
 interface Quest {
   id: number;
@@ -27,21 +27,21 @@ const mockQuests: Quest[] = [
   {
     id: 1,
     name: "初回入浴クエスト",
-    image: stampImage,
+    image: stampImage.src,
     completed: true,
     difficulty: "初級"
   },
   {
     id: 2,
     name: "長湯マスタークエスト",
-    image: stampImage,
+    image: stampImage.src,
     completed: false,
     difficulty: "上級"
   },
   {
     id: 3,
     name: "リラックスクエスト",
-    image: stampImage,
+    image: stampImage.src,
     completed: false,
     difficulty: "中級"
   }
@@ -145,7 +145,7 @@ export function StampRallyScreen({ onBack, onSelectOnsen, onTabChange }: QuestLi
                       <div 
                         className="absolute inset-0 w-16 h-16 opacity-25 pointer-events-none z-20"
                         style={{
-                          backgroundImage: `url(${noiseTexture})`,
+                          backgroundImage: `url(${noiseTexture.src})`,
                           backgroundSize: '64px 64px',
                           backgroundRepeat: 'repeat',
                           mixBlendMode: 'screen',
