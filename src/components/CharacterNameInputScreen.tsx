@@ -4,10 +4,16 @@ import { Card, CardContent } from './ui/card';
 import { Input } from './ui/input';
 import { ArrowLeft } from 'lucide-react';
 import kawaiiImage from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
+import { StaticImageData } from '../../node_modules/next/image';
 
 interface CharacterNameInputScreenProps {
   userName: string;
-  characterName?: string;
+  character?: {
+    id: string;
+    name: string;
+    description: string;
+    image: StaticImageData;
+  };
   onBack: () => void;
   onCharacterNameChange: (name: string) => void;
   onComplete: () => void;
@@ -15,13 +21,13 @@ interface CharacterNameInputScreenProps {
 
 const defaultCharacter = {
   id: 'sakura-san',
-  defaultName: 'もちもちうさぎ',
+  name: 'もちもちうさぎ',
   description: 'あなたの温泉パートナー',
   image: kawaiiImage
 };
 
-export function CharacterNameInputScreen({ userName, characterName = '', onBack, onCharacterNameChange, onComplete }: CharacterNameInputScreenProps) {
-  const [inputName, setInputName] = useState(characterName || defaultCharacter.defaultName);
+export function CharacterNameInputScreen({ userName, character, onBack, onCharacterNameChange, onComplete }: CharacterNameInputScreenProps) {
+  const [inputName, setInputName] = useState(character?.name || defaultCharacter.name);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;
@@ -58,12 +64,12 @@ export function CharacterNameInputScreen({ userName, characterName = '', onBack,
               <div className="flex flex-col items-center text-center">
                 <div className="w-24 h-24 rounded-full mb-4 overflow-hidden bg-app-accent-2 flex items-center justify-center shadow-lg">
                   <img
-                    src={defaultCharacter.image.src}
+                    src={character?.image.src || defaultCharacter.image.src}
                     alt="パートナーキャラクター"
                     className="w-20 h-20 object-contain"
                   />
                 </div>
-                <p className="text-app-base-light mb-4">{defaultCharacter.description}</p>
+                <p className="text-app-base-light mb-4">{character?.description || defaultCharacter.description}</p>
               </div>
             </CardContent>
           </Card>
