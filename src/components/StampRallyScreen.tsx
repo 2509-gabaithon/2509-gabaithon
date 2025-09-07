@@ -4,59 +4,53 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { MapPin, CheckCircle, Clock, ArrowLeft } from 'lucide-react';
+import { CheckCircle, ArrowLeft, Sparkles } from 'lucide-react';
 import { BottomTabNavigation, TabType } from './BottomTabNavigation';
+import stampImage from 'figma:asset/23d72f267674d7a86e5a4d3966ba367d52634bd9.png';
+import noiseTexture from 'figma:asset/221bcc06007de28e2dedf86e88d0a2798eac78e7.png';
 
-interface OnsenStamp {
+interface Quest {
   id: number;
   name: string;
-  location: string;
   image: string;
-  visited: boolean;
-  distance: number;
+  completed: boolean;
   difficulty: string;
 }
 
-interface StampRallyScreenProps {
+interface QuestListScreenProps {
   onBack: () => void;
-  onSelectOnsen: (onsen: OnsenStamp) => void;
+  onSelectOnsen: (onsen: any) => void;
   onTabChange?: (tab: TabType) => void;
 }
 
-const mockStamps: OnsenStamp[] = [
+const mockQuests: Quest[] = [
   {
     id: 1,
-    name: "箱根湯本温泉",
-    location: "神奈川県箱根町",
-    image: "https://images.unsplash.com/photo-1672026431306-fca8fba1d14e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxqYXBhbmVzZSUyMGhvdCUyMHNwcmluZyUyMG9uc2VuJTIwdHJhZGl0aW9uYWx8ZW58MXx8fHwxNzU2ODE0OTk2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    visited: true,
-    distance: 0.5,
+    name: "初回入浴クエスト",
+    image: stampImage,
+    completed: true,
     difficulty: "初級"
   },
   {
     id: 2,
-    name: "乳頭温泉郷",
-    location: "秋田県仙北市",
-    image: "https://images.unsplash.com/photo-1732721776092-0261e7b39144?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvdXRkb29yJTIwaG90JTIwc3ByaW5nJTIwbmF0dXJlJTIwbW91bnRhaW58ZW58MXx8fHwxNzU2ODE0OTk3fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    visited: false,
-    distance: 2.3,
+    name: "長湯マスタークエスト",
+    image: stampImage,
+    completed: false,
     difficulty: "上級"
   },
   {
     id: 3,
-    name: "有馬温泉",
-    location: "兵庫県神戸市",
-    image: "https://images.unsplash.com/photo-1554424518-336ec861b705?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcGElMjB3ZWxsbmVzcyUyMHJlbGF4YXRpb258ZW58MXx8fHwxNzU2ODE0OTk3fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    visited: false,
-    distance: 1.2,
+    name: "リラックスクエスト",
+    image: stampImage,
+    completed: false,
     difficulty: "中級"
   }
 ];
 
-export function StampRallyScreen({ onBack, onSelectOnsen, onTabChange }: StampRallyScreenProps) {
-  const visitedCount = mockStamps.filter(stamp => stamp.visited).length;
-  const totalCount = mockStamps.length;
-  const progressPercentage = (visitedCount / totalCount) * 100;
+export function StampRallyScreen({ onBack, onSelectOnsen, onTabChange }: QuestListScreenProps) {
+  const completedCount = mockQuests.filter(quest => quest.completed).length;
+  const totalCount = mockQuests.length;
+  const progressPercentage = (completedCount / totalCount) * 100;
 
   const handleTabChange = (tab: TabType) => {
     if (onTabChange) {
@@ -74,25 +68,44 @@ export function StampRallyScreen({ onBack, onSelectOnsen, onTabChange }: StampRa
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-app-accent-1-light to-white p-4 pb-32">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen bg-gradient-to-b from-app-base via-app-main-dark to-app-main relative overflow-hidden p-4 pb-32">
+      {/* Background sparkles */}
+      <div className="absolute inset-0">
+        <div className="absolute top-20 left-10 text-white/30 animate-pulse">
+          <Sparkles className="w-6 h-6" />
+        </div>
+        <div className="absolute top-32 right-16 text-white/20 animate-pulse">
+          <Sparkles className="w-4 h-4" />
+        </div>
+        <div className="absolute top-48 left-20 text-white/25 animate-pulse">
+          <Sparkles className="w-5 h-5" />
+        </div>
+        <div className="absolute bottom-32 right-10 text-white/30 animate-pulse">
+          <Sparkles className="w-6 h-6" />
+        </div>
+        <div className="absolute bottom-48 left-14 text-white/20 animate-pulse">
+          <Sparkles className="w-4 h-4" />
+        </div>
+      </div>
+
+      <div className="max-w-md mx-auto relative z-10">
         <div className="flex items-center mb-6">
-          <Button variant="ghost" onClick={onBack} className="mr-2 p-2">
+          <Button variant="ghost" onClick={onBack} className="mr-2 p-2 text-white hover:bg-white/20">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-2xl font-bold text-app-base">スタンプラリー</h1>
+          <h1 className="text-2xl font-bold text-white">クエスト一覧</h1>
         </div>
 
-        <Card className="mb-6">
+        <Card className="mb-6 bg-white/95 backdrop-blur-sm border-white/20">
           <CardHeader>
-            <CardTitle className="text-center">進捗状況</CardTitle>
+            <CardTitle className="text-center text-app-base">進捗状況</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center mb-4">
               <span className="text-3xl font-bold text-app-base">
-                {visitedCount} / {totalCount}
+                {completedCount} / {totalCount}
               </span>
-              <p className="text-app-base-light">温泉コンプリート</p>
+              <p className="text-app-base-light">クエスト完了</p>
             </div>
             <Progress value={progressPercentage} className="h-3 mb-2" />
             <p className="text-center text-sm text-app-base-light">
@@ -102,49 +115,89 @@ export function StampRallyScreen({ onBack, onSelectOnsen, onTabChange }: StampRa
         </Card>
 
         <div className="space-y-4">
-          {mockStamps.map((stamp) => (
+          {mockQuests.map((quest) => (
             <Card 
-              key={stamp.id} 
-              className={`cursor-pointer transition-all ${
-                stamp.visited ? 'bg-app-accent-2 border-app-main' : 'hover:shadow-md'
+              key={quest.id} 
+              className={`cursor-pointer transition-all bg-white/95 backdrop-blur-sm border-white/20 ${
+                quest.completed ? 'border-app-main shadow-lg' : 'hover:shadow-md hover:bg-white'
               }`}
-              onClick={() => onSelectOnsen(stamp)}
+              onClick={() => onSelectOnsen(quest)}
             >
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <div className="relative">
-                    <ImageWithFallback
-                      src={stamp.image}
-                      alt={stamp.name}
-                      className="w-16 h-16 rounded-lg object-cover"
-                    />
-                    {stamp.visited && (
+                    {/* スタンプ画像 */}
+                    <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+                      <img
+                        src={quest.image}
+                        alt={quest.name}
+                        className="w-16 h-16 object-contain relative z-10"
+                        style={{
+                          filter: `
+                            contrast(1.2) 
+                            brightness(0.9)
+                            sepia(0.1)
+                          `,
+                        }}
+                      />
+                      
+                      {/* 白いノイズテクスチャオーバーレイ */}
+                      <div 
+                        className="absolute inset-0 w-16 h-16 opacity-25 pointer-events-none z-20"
+                        style={{
+                          backgroundImage: `url(${noiseTexture})`,
+                          backgroundSize: '64px 64px',
+                          backgroundRepeat: 'repeat',
+                          mixBlendMode: 'screen',
+                          mask: `url(${quest.image})`,
+                          maskSize: 'contain',
+                          maskRepeat: 'no-repeat',
+                          maskPosition: 'center',
+                          WebkitMask: `url(${quest.image})`,
+                          WebkitMaskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center'
+                        }}
+                      />
+
+                      {/* 印影効果 */}
+                      <div 
+                        className="absolute inset-0 w-16 h-16 opacity-20 pointer-events-none z-15"
+                        style={{
+                          background: `radial-gradient(ellipse at center, transparent 50%, rgba(93, 104, 138, 0.4) 65%, rgba(93, 104, 138, 0.6) 75%, transparent 90%)`,
+                          mixBlendMode: 'multiply',
+                          mask: `url(${quest.image})`,
+                          maskSize: 'contain',
+                          maskRepeat: 'no-repeat',
+                          maskPosition: 'center',
+                          WebkitMask: `url(${quest.image})`,
+                          WebkitMaskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center'
+                        }}
+                      />
+                    </div>
+                    
+                    {quest.completed && (
                       <CheckCircle className="absolute -top-2 -right-2 h-6 w-6 text-app-main bg-white rounded-full" />
                     )}
                   </div>
                   
                   <div className="ml-4 flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-bold">{stamp.name}</h3>
-                      <Badge className={getDifficultyColor(stamp.difficulty)}>
-                        {stamp.difficulty}
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-bold text-app-base">{quest.name}</h3>
+                      <Badge className={getDifficultyColor(quest.difficulty)}>
+                        {quest.difficulty}
                       </Badge>
                     </div>
                     
-                    <div className="flex items-center mb-2 text-sm text-app-base-light">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      <span className="mr-3">{stamp.location}</span>
-                      <Clock className="h-4 w-4 mr-1" />
-                      <span>{stamp.distance}km</span>
-                    </div>
-                    
-                    {stamp.visited ? (
+                    {quest.completed ? (
                       <Badge className="bg-app-main">
-                        ✓ 訪問済み
+                        ✓ 完了済み
                       </Badge>
                     ) : (
-                      <Badge variant="outline">
-                        未訪問
+                      <Badge variant="outline" className="border-app-base-light text-app-base-light">
+                        未完了
                       </Badge>
                     )}
                   </div>
@@ -153,17 +206,6 @@ export function StampRallyScreen({ onBack, onSelectOnsen, onTabChange }: StampRa
             </Card>
           ))}
         </div>
-
-        <Card className="mt-6">
-          <CardContent className="pt-4">
-            <div className="text-center">
-              <h3 className="font-bold mb-2">🏆 コンプリート特典</h3>
-              <p className="text-sm text-app-base-light">
-                全ての温泉を巡ると特別なキャラクターアイテムがもらえます！
-              </p>
-            </div>
-          </CardContent>
-        </Card>
       </div>
       
       <BottomTabNavigation 
