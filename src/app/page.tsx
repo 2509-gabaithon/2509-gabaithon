@@ -1,19 +1,18 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { TitleScreen } from '../components/TitleScreen';
-import { NameInputScreen } from '../components/NameInputScreen';
-import { CharacterNameInputScreen } from '../components/CharacterNameInputScreen';
-import { HomeScreen } from '../components/HomeScreen';
-import { StampRallyScreen } from '../components/StampRallyScreen';
-import { CharacterDecoScreen } from '../components/CharacterDecoScreen';
-import { LocationCheckScreen } from '../components/LocationCheckScreen';
-import { NewLocationCheckScreen } from '../components/NewLocationCheckScreen';
-
-import { TimerScreen } from '../components/TimerScreen';
-import { StampAcquisitionScreen } from '../components/StampAcquisitionScreen';
-import { ResultScreen } from '../components/ResultScreen';
-import { TabType } from '../components/BottomTabNavigation';
+import { TitleScreen } from '@/components/TitleScreen';
+import { NameInputScreen } from '@/components/NameInputScreen';
+import { CharacterNameInputScreen } from '@/components/CharacterNameInputScreen';
+import { HomeScreen } from '@/components/HomeScreen';
+import { StampRallyScreen as QuestScreen } from '@/components/QuestScreen';
+import { CharacterDecoScreen } from '@/components/CharacterDecoScreen';
+import { LocationCheckScreen } from '@/components/LocationCheckScreen';
+import { NewLocationCheckScreen } from '@/components/NewLocationCheckScreen';
+import { TimerScreen } from '@/components/TimerScreen';
+import { StampAcquisitionScreen } from '@/components/StampAcquisitionScreen';
+import { ResultScreen } from '@/components/ResultScreen';
+import { TabType } from '@/components/BottomTabNavigation';
 
 type ScreenType = 
   | 'title'
