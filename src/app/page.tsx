@@ -14,6 +14,7 @@ import { StampAcquisitionScreen } from '@/components/StampAcquisitionScreen';
 import { ResultScreen } from '@/components/ResultScreen';
 import { TabType } from '@/components/BottomTabNavigation';
 import mochiusa from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png'
+import ureshinoStamp from '@/assets/23d72f267674d7a86e5a4d3966ba367d52634bd9.png'
 
 type ScreenType = 
   | 'title'
@@ -148,7 +149,7 @@ export default function App() {
     // タイマーの時間を保存してスタンプ獲得画面へ
     setTimerDuration(timeSpent);
     // 獲得するスタンプ情報を設定
-    setAcquiredStamp({ name: '箱根湯本温泉', icon: '🌸' });
+    setAcquiredStamp({ name: '箱根湯本温泉', icon: ureshinoStamp.src });
     setCurrentScreen('stampAcquisition');
   };
 
