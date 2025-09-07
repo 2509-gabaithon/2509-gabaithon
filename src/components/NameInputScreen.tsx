@@ -5,11 +5,11 @@ import { Card, CardContent } from './ui/card';
 
 interface NameInputScreenProps {
   onNext: (name: string) => void;
-  initialName?: string;
+  userName?: string;
 }
 
-export function NameInputScreen({ onNext, initialName = '' }: NameInputScreenProps) {
-  const [name, setName] = useState(initialName);
+export function NameInputScreen({ onNext, userName = '' }: NameInputScreenProps) {
+  const [name, setName] = useState(userName);
 
   const handleNext = () => {
     if (name.trim()) {
@@ -37,8 +37,8 @@ export function NameInputScreen({ onNext, initialName = '' }: NameInputScreenPro
           </CardContent>
         </Card>
 
-        <Button 
-          size="lg" 
+        <Button
+          size="lg"
           className="w-full"
           onClick={handleNext}
           disabled={!name.trim()}
