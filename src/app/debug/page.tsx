@@ -72,7 +72,7 @@ export default function DebugMapPage() {
                     <Marker
                         position={currentPosition}
                         icon={{
-                            url: '/myplace.png', // publicフォルダに画像を配置
+                            url: '/myplace.png', 
                             scaledSize: new window.google.maps.Size(40, 40),
                         }}
                     />
@@ -100,6 +100,8 @@ export default function DebugMapPage() {
                                         url: '/spa.png',
                                         scaledSize: new window.google.maps.Size(40, 40),
                                     }}
+                                    onMouseOver={() => setActiveOnsenIdx(idx)}
+                                    onMouseOut={() => setActiveOnsenIdx(null)}
                                     onClick={() => setActiveOnsenIdx(idx)}
                                 />
                                 {activeOnsenIdx === idx && (
@@ -110,7 +112,7 @@ export default function DebugMapPage() {
                                         }}
                                         onCloseClick={() => setActiveOnsenIdx(null)}
                                     >
-                                            <div style={{ pointerEvents: 'none' }}>{place.name}</div>
+                                        <div>{place.name}</div>
                                     </InfoWindow>
                                 )}
                             </React.Fragment>
