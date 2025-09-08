@@ -27,16 +27,13 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
   const [isRunning, setIsRunning] = useState(false);
   const [buttonText, setButtonText] = useState('入浴を始める！');
   const [showExitModal, setShowExitModal] = useState(false);
-  const [timeStart, setTimeStart] = useState(new Date())
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
     
     if (isRunning) {
       interval = setInterval(() => {
-        const diffMilliseconds = Date.now() - timeStart.getTime()
-        const diffSeconds = Math.floor(diffMilliseconds / 1000)
-        setTimeElapsed(diffSeconds);
+        setTimeElapsed(prevTime => prevTime + 1);
       }, 1000);
     }
 
@@ -80,7 +77,6 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
       // タイマー開始
       setIsRunning(true);
       setButtonText('温泉からあがる');
-      setTimeStart(new Date())
     } else {
       // 確認モーダルを表示
       setShowExitModal(true);
@@ -239,7 +235,7 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
         </div>
       </div>
 
-      <div className="max-w-md mx-auto flex flex-col justify-center min-h-screen relative z-10">
+      <div className="max-w-md mx-auto flex flex-col justify-center items-center min-h-screen relative z-10">
         
         {/* タイマー表示 */}
         <div className="text-center mb-8">
@@ -250,37 +246,36 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
             {isRunning ? '入浴中...' : '温泉タイマー'}
           </p>
         </div>
-
+        <img
+          src={kawaiiImage.src}
+          alt={character.name}
+          className="size-58 object-contain shadow-[0px_7px_7px_-10px_rgba(0,0,0,0.5)] mb-4"
+        />
         {/* キャラクター表示 */}
-        <Card className="mb-8 bg-white/90 shadow-lg">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="w-32 h-32 mx-auto mb-4 bg-app-accent-2 rounded-full border-4 border-app-accent-1 flex items-center justify-center overflow-hidden relative">
-                <img
-                  src={kawaiiImage.src}
-                  alt={character.name}
-                  className="w-28 h-28 object-contain character-pulse absolute top-1/2 left-1/2"
-                />
-                {/* キャラクター周りのキラキラ */}
-                <div className="absolute -top-2 -right-2 text-yellow-300 animate-bounce">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div className="absolute -bottom-2 -left-2 text-pink-300 animate-bounce" style={{ animationDelay: '0.5s' }}>
-                  <Sparkles className="w-4 h-4" />
-                </div>
-              </div>
+        <div className="flex flex-col justify-center items-center mb-4">
+          <div className="relative inline-block">
+            
+            {/* キャラクター周りのキラキラ */}
+            <div className="absolute -top-48 -right-32 transform -translate-x-1/2 -translate-y-1/2 text-yellow-300 animate-bounce">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div className="absolute -bottom-0 -left-18 transform -translate-x-1/2 -translate-y-1/2 text-pink-300 animate-bounce" style={{ animationDelay: '0.5s' }}>
+              <Sparkles className="w-4 h-4" />
+            </div>
+          </div>
               
-              <h2 className="text-xl font-bold text-app-base mb-2">{character.name}</h2>
-              <div className="flex justify-center space-x-4 text-sm">
-                <div className="text-center">
-                  <p className="text-app-base-light">レベル</p>
-                  <p className="font-bold text-app-main">{character.level}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-app-base-light">温泉回数</p>
-                  <p className="font-bold text-app-main">{character.onsenCount}</p>
-                </div>
-              </div>
+          <h2 className="text-xl font-bold text-app-base mb-2">{character.name}</h2>
+          
+          <div className="flex justify-center space-x-4 text-sm">
+            <div className="text-center">
+              <p className="text-app-base-light">レベル</p>
+              <p className="font-bold text-app-main">{character.level}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-app-base-light">温泉回数</p>
+              <p className="font-bold text-app-main">{character.onsenCount}</p>
+            </div>
+          </div>
               
               {isRunning && (
                 <div className="mt-4 p-3 bg-white/95 rounded-lg shadow-md border border-white/20">
@@ -295,8 +290,6 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
 
         {/* 入浴ボタン */}
         <Button 
@@ -320,14 +313,10 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
       </div>
 
       {/* 確認モーダル */}
-      <Dialog open={showExitModal} onOpenChange={(open) => {
-        // バツボタンでのクローズを無効化（まだはいるボタンでのみクローズ可能）
-        if (!open && showExitModal) {
-          return;
-        }
-        setShowExitModal(open);
-      }}>
-        <DialogContent className="w-full max-w-sm mx-auto bg-white/95 backdrop-blur-sm border-2 border-app-accent-1">
+      <Dialog open={showExitModal} onOpenChange={(open) => setShowExitModal(open)} // 背景クリックでも閉じる
+      >
+        
+        <DialogContent showCloseButton={false} className="w-full max-w-sm mx-auto bg-white/95 backdrop-blur-sm border-2 border-app-accent-1">
           <DialogHeader className="text-center">
             <div className="mx-auto mb-4 w-16 h-16 bg-app-accent-2 rounded-full border-4 border-app-accent-1 flex items-center justify-center">
               <img
