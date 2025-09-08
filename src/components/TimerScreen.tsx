@@ -27,13 +27,16 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
   const [isRunning, setIsRunning] = useState(false);
   const [buttonText, setButtonText] = useState('入浴を始める！');
   const [showExitModal, setShowExitModal] = useState(false);
+  const [timeStart, setTimeStart] = useState(new Date())
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
     
     if (isRunning) {
       interval = setInterval(() => {
-        setTimeElapsed(prevTime => prevTime + 1);
+        const diffMilliseconds = Date.now() - timeStart.getTime()
+        const diffSeconds = Math.floor(diffMilliseconds / 1000)
+        setTimeElapsed(diffSeconds);
       }, 1000);
     }
 
@@ -77,6 +80,7 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
       // タイマー開始
       setIsRunning(true);
       setButtonText('温泉からあがる');
+      setTimeStart(new Date())
     } else {
       // 確認モーダルを表示
       setShowExitModal(true);
