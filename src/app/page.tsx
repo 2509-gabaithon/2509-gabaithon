@@ -46,7 +46,6 @@ interface Character {
   exp: number;
   maxExp: number;
   happiness: number;
-  stamina: number;
   onsenCount: number;
 }
 
@@ -78,7 +77,6 @@ export default function App() {
     exp: 0,
     maxExp: 100,
     happiness: 80,
-    stamina: 100,
     onsenCount: 0
   });
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
@@ -192,7 +190,38 @@ export default function App() {
     setCharacterName(name);
   };
 
-  const handleCharacterSelect = () => {
+  const calculateNextLevelExp = (nowLevel: number): number => {
+    return(Math.floor(50 * 1.25 * (nowLevel + 1) - 1));
+  }
+
+  const calculateExpAtNowLevel = (level: number, exp: number): number => {
+    if (level < 1) return 0;
+    if (!exp) return 0;
+
+    let total = 0;
+    for (let l = 1; l < level; l++) {
+      total += calculateNextLevelExp(l);
+    }
+    return exp - total;
+  }
+  // 総expからレベルを計算する（E=50×1.25^(L−1)の累積で判定、最大15）
+  const calculateLevel = (exp: number): number => {
+    if (!exp) {
+      return 1;
+    }
+    let total = 0;
+    let level = 1;
+    for (let l = 1; l <= 15; l++) {
+      total += calculateNextLevelExp(l);
+      if (exp < total) {
+        return l;
+      }
+      level = l + 1;
+    }
+    return level;
+  };
+
+  const handleCharacterSelect = async () => {
     if (!characterName.trim()) return;
     
     const newUserData: UserData = {
@@ -201,15 +230,28 @@ export default function App() {
       isFirstTime: true
     };
     
+    //ここにキャラのデータ
+    const supabase = await createClient();
+    console.log(user?.id);
+    const { data, error } = await supabase
+      .from('user_partner')
+      .select('*')
+      .eq('user_id', user?.id)
+      // .single();
+    if (error) {
+      console.error('Error fetching character:', error);
+      return;
+    }
+    console.log(data);
+    let currentLevel = calculateLevel(data[0].exp);
     const newCharacter: Character = {
       name: characterName.trim(),
-      type: 'sakura-san',
-      level: 1,
-      exp: 0,
-      maxExp: 100,
-      happiness: 80,
-      stamina: 100,
-      onsenCount: 0
+      type: data[0].name ?? 'sakura-san',
+      level: currentLevel,
+      exp: calculateExpAtNowLevel(currentLevel, data[0].exp),
+      maxExp: calculateNextLevelExp(currentLevel),
+      happiness: data[0].happiness ?? 80,
+      onsenCount: data[0].count ?? 0
     };
 
     setUserData(newUserData);
@@ -232,8 +274,6 @@ export default function App() {
   const handleLocationConfirmed = () => {
     setCurrentScreen('timer');
   };
-
-
 
   const handleTimerComplete = (timeSpent: number) => {
     // タイマーの時間を保存してスタンプ獲得画面へ
@@ -258,7 +298,6 @@ export default function App() {
         level: newLevel,
         maxExp: newLevel * 100, // レベルに応じて必要経験値増加
         happiness: Math.min(100, currentCharacter.happiness + 10),
-        stamina: Math.min(100, currentCharacter.stamina + 15),
         onsenCount: currentCharacter.onsenCount + 1
       };
 
