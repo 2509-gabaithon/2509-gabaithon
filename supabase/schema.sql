@@ -88,9 +88,10 @@ CREATE TABLE IF NOT EXISTS "public"."nyuyoku_log" (
     "started_at" timestamp with time zone NOT NULL,
     "ended_at" timestamp with time zone NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "place_id" "text" NOT NULL,
-    "lat" double precision,
-    "lng" double precision
+    "onsen_name" "text",
+    "onsen_place_id" "text" NOT NULL,
+    "onsen_lat" double precision,
+    "onsen_lng" double precision
 );
 
 
