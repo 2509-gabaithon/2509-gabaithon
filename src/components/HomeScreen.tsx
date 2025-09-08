@@ -84,19 +84,12 @@ export function HomeScreen({
                 <Progress value={expPercentage} className="h-2" />
               </div>
 
-              <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="grid grid-cols-2 text-center">
                 <div className="flex flex-col items-center">
                   <Heart className="h-6 w-6 text-app-main mb-1" />
                   <span className="text-sm font-medium">幸福度</span>
                   <span className="text-lg font-bold text-app-main">
                     {character.happiness}%
-                  </span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <Star className="h-6 w-6 text-app-accent-1-dark mb-1" />
-                  <span className="text-sm font-medium">スタミナ</span>
-                  <span className="text-lg font-bold text-app-accent-1-dark">
-                    {character.stamina}%
                   </span>
                 </div>
                 <div className="flex flex-col items-center">

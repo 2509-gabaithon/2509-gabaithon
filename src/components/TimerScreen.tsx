@@ -271,16 +271,6 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
               </div>
               
               <h2 className="text-xl font-bold text-app-base mb-2">{character.name}</h2>
-              <div className="flex justify-center space-x-4 text-sm">
-                <div className="text-center">
-                  <p className="text-app-base-light">レベル</p>
-                  <p className="font-bold text-app-main">{character.level}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-app-base-light">温泉回数</p>
-                  <p className="font-bold text-app-main">{character.onsenCount}</p>
-                </div>
-              </div>
               
               {isRunning && (
                 <div className="mt-4 p-3 bg-white/95 rounded-lg shadow-md border border-white/20">
@@ -320,14 +310,10 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
       </div>
 
       {/* 確認モーダル */}
-      <Dialog open={showExitModal} onOpenChange={(open) => {
-        // バツボタンでのクローズを無効化（まだはいるボタンでのみクローズ可能）
-        if (!open && showExitModal) {
-          return;
-        }
-        setShowExitModal(open);
-      }}>
-        <DialogContent className="w-full max-w-sm mx-auto bg-white/95 backdrop-blur-sm border-2 border-app-accent-1">
+      <Dialog open={showExitModal} onOpenChange={(open) => setShowExitModal(open)} // 背景クリックでも閉じる
+      >
+        
+        <DialogContent showCloseButton={false} className="w-full max-w-sm mx-auto bg-white/95 backdrop-blur-sm border-2 border-app-accent-1">
           <DialogHeader className="text-center">
             <div className="mx-auto mb-4 w-16 h-16 bg-app-accent-2 rounded-full border-4 border-app-accent-1 flex items-center justify-center">
               <img
