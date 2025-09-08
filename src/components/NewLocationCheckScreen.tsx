@@ -103,16 +103,12 @@ export function NewLocationCheckScreen({
     const request = {
       location: currentPosition,
       radius: 5000, // 5km以内
-      // keyword: '温泉',
-      type: 'spa',
+      keyword: '温泉',
+      // type: 'spa',
     };
     service.nearbySearch(request, (results, status) => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
         setOnsenLocations(results);
-        // 取得した温泉情報を全件コンソール出力
-        results.forEach((place: any, idx: number) => {
-          console.log(idx, place.name, place, place.id);
-        });
         // 最も近い温泉までの距離を計算
         let minDist = Infinity;
         results.forEach((place: any) => {
@@ -185,7 +181,10 @@ export function NewLocationCheckScreen({
                         lat: place.geometry.location.lat(),
                         lng: place.geometry.location.lng(),
                       }}
-                      onCloseClick={() => setActiveOnsenIdx(null)}
+                      onCloseClick={() => {
+                        setActiveOnsenIdx(null);
+                        setOnsen('未選択');
+                      }}
                     >
                       <div>{place.name}</div>
                     </InfoWindow>
@@ -217,10 +216,8 @@ export function NewLocationCheckScreen({
               <Navigation className="h-5 w-5 text-app-main mr-2" />
               <div>
                 <p className="font-medium">
-                  {activeOnsenIdx !== null && onsenLocations[activeOnsenIdx]
-                  ? onsenLocations[activeOnsenIdx].name
-                  : onsenLocations.length > 0
-                    ? onsenLocations[0].name
+                  {activeOnsenIdx !== null && onsenLocations[activeOnsenIdx].name
+                    ? onsenLocations[activeOnsenIdx].name
                     : '[未選択]'}
                 </p>
                 <p className="text-sm text-app-base-light">
