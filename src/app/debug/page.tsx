@@ -12,7 +12,7 @@ const LIBRARIES = ['places'];
 export default function DebugMapPage() {
 
     const { isLoaded } = useJsApiLoader({
-        googleMapsApiKey: 'API_KEY', // ←APIキーを記入
+        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!, // ←APIキーを記入
         libraries: LIBRARIES as any,
     });
     const [currentPosition, setCurrentPosition] = useState<{ lat: number; lng: number } | null>(null);
