@@ -18,6 +18,7 @@ import ureshinoStamp from '@/assets/23d72f267674d7a86e5a4d3966ba367d52634bd9.png
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import type { accounts, CredentialResponse } from 'google-one-tap'
+import type { User } from '@supabase/supabase-js';
 
 type ScreenType = 
   | 'title'
@@ -63,44 +64,113 @@ declare const google: { accounts: accounts }
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('title');
+  const [activeTab, setActiveTab] = useState<TabType>('home');
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [character, setCharacter] = useState<Character | null>({
-        name: 'もちもちうさぎ',
-        type: "aaa",
-        level: 1,
-        exp: 0,
-        maxExp: 100,
-        happiness: 80,
-        stamina: 100,
-        onsenCount: 0
-      });
+  const [user, setUser] = useState<User | null>(null); // 認証ユーザー状態
+  const [authLoading, setAuthLoading] = useState(true); // 認証状態のローディング
   const [tempUserName, setTempUserName] = useState<string>('');
-  const [characterName, setCharacterName] = useState<string>('もちもちうさぎ');
-  const [selectedOnsen, setSelectedOnsen] = useState<OnsenStamp | null>(null);
+  const [characterName, setCharacterName] = useState<string>('');
+  const [currentCharacter, setCurrentCharacter] = useState<Character>({
+    name: '',
+    type: 'sakura-san',
+    level: 1,
+    exp: 0,
+    maxExp: 100,
+    happiness: 80,
+    stamina: 100,
+    onsenCount: 0
+  });
+  const [selectedLocation, setSelectedLocation] = useState<any>(null);
   const [timerDuration, setTimerDuration] = useState<number>(0);
   const [acquiredStamp, setAcquiredStamp] = useState<{ name: string; icon: string } | null>(null);
   
-  const handleStart = async () => {
-    const supabase = await createClient()
+  const supabase = createClient(); // クライアントを一度だけ作成
 
-    //認証のチェック
-    const user = await supabase.auth.getUser()
-    if (!user) {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: process.env.NEXT_PUBLIC_CALLBACK_URL || 'http://localhost:3000/auth/callback',
+  // 認証状態の監視とセッション取得
+  useEffect(() => {
+    let mounted = true;
+
+    // 初期セッション取得（安全なエラーハンドリング付き）
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.warn('Initial session error:', error.message);
+          return;
         }
-      })
-      if (error) {
-        console.error('Error during sign-in:', error);
-        return;
+        if (mounted) {
+          if (session?.user) {
+            setUser(session.user);
+            console.log('Initial session found:', session.user);
+          } else {
+            setUser(null);
+            console.log('No initial session');
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to get initial session:', err);
+      } finally {
+        if (mounted) {
+          setAuthLoading(false);
+        }
       }
-      console.log('Sign-in initiated:', data);
-    } else {
-      console.log('User already signed in:', user)
+    };
+
+    // 認証状態変更の監視
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('Auth state change:', event, session?.user?.id);
+        if (mounted) {
+          if (session?.user) {
+            setUser(session.user);
+            setAuthLoading(false);
+          } else {
+            setUser(null);
+            setAuthLoading(false);
+          }
+        }
+      }
+    );
+
+    getInitialSession();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleStart = async () => {
+    // 認証状態がまだ読み込み中の場合は待機
+    if (authLoading) {
+      console.log('Auth still loading, please wait...');
+      return;
     }
 
+    // 未認証の場合は認証フローを開始
+    if (!user) {
+      try {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: process.env.NEXT_PUBLIC_CALLBACK_URL || 'http://localhost:3000/auth/callback',
+          }
+        });
+        if (error) {
+          console.error('Error during sign-in:', error);
+          return;
+        }
+        console.log('Sign-in initiated:', data);
+        return; // 認証フロー開始後は処理を終了
+      } catch (err) {
+        console.error('Sign-in failed:', err);
+        return;
+      }
+    }
+
+    console.log('User authenticated:', user);
+
+    // 認証済みの場合は画面遷移
     if (userData) {
       setCurrentScreen('home');
     } else {
@@ -142,7 +212,7 @@ export default function App() {
     };
 
     setUserData(newUserData);
-    setCharacter(newCharacter);
+    setCurrentCharacter(newCharacter);
     
     // ローカルストレージに保存
     localStorage.setItem('onsenAppUser', JSON.stringify(newUserData));
@@ -153,8 +223,8 @@ export default function App() {
 
 
 
-  const handleOnsenSelect = (onsen: OnsenStamp) => {
-    setSelectedOnsen(onsen);
+  const handleOnsenSelect = (onsen: any) => {
+    setSelectedLocation(onsen);
     setCurrentScreen('locationCheck');
   };
 
@@ -174,24 +244,24 @@ export default function App() {
 
   const handleStampAcquisitionComplete = () => {
     // キャラクターの経験値とステータスを更新
-    if (character) {
+    if (currentCharacter) {
       const expGained = Math.floor(timerDuration * 2); // 1分につき2EXP
-      const newExp = character.exp + expGained;
-      const levelUp = newExp >= character.maxExp;
-      const newLevel = levelUp ? character.level + 1 : character.level;
-      const remainingExp = levelUp ? newExp - character.maxExp : newExp;
+      const newExp = currentCharacter.exp + expGained;
+      const levelUp = newExp >= currentCharacter.maxExp;
+      const newLevel = levelUp ? currentCharacter.level + 1 : currentCharacter.level;
+      const remainingExp = levelUp ? newExp - currentCharacter.maxExp : newExp;
       
       const updatedCharacter: Character = {
-        ...character,
+        ...currentCharacter,
         exp: remainingExp,
         level: newLevel,
         maxExp: newLevel * 100, // レベルに応じて必要経験値増加
-        happiness: Math.min(100, character.happiness + 10),
-        stamina: Math.min(100, character.stamina + 15),
-        onsenCount: character.onsenCount + 1
+        happiness: Math.min(100, currentCharacter.happiness + 10),
+        stamina: Math.min(100, currentCharacter.stamina + 15),
+        onsenCount: currentCharacter.onsenCount + 1
       };
 
-      setCharacter(updatedCharacter);
+      setCurrentCharacter(updatedCharacter);
       localStorage.setItem('onsenAppCharacter', JSON.stringify(updatedCharacter));
     }
     
@@ -231,9 +301,9 @@ export default function App() {
   };
 
   const checkLevelUp = (timeSpent: number) => {
-    if (!character) return false;
+    if (!currentCharacter) return false;
     const expGained = calculateExpGained(timeSpent);
-    return character.exp + expGained >= character.maxExp;
+    return currentCharacter.exp + expGained >= currentCharacter.maxExp;
   };
 
   // 画面のレンダリング
@@ -248,7 +318,7 @@ export default function App() {
       return (
         <CharacterNameInputScreen 
           userName={tempUserName}
-          character={{...character!, id: character!.type, description: 'ここにパートナーの説明が入る', image: mochiusa}}
+          character={{...currentCharacter!, id: currentCharacter!.type, description: 'ここにパートナーの説明が入る', image: mochiusa}}
           onBack={() => setCurrentScreen('nameInput')}
           onCharacterNameChange={handleCharacterNameChange}
           onComplete={handleCharacterSelect}
@@ -256,10 +326,10 @@ export default function App() {
       );
       
     case 'home':
-      if (!userData || !character) return <div>Loading...</div>;
+      if (!userData || !currentCharacter) return <div>Loading...</div>;
       return (
         <HomeScreen 
-          character={character}
+          character={currentCharacter}
           onNavigateToStampRally={() => setCurrentScreen('stampRally')}
           onNavigateToDecoration={() => setCurrentScreen('decoration')}
           onTabChange={handleTabChange}
@@ -276,20 +346,20 @@ export default function App() {
       );
       
     case 'decoration':
-      if (!character) return <div>Loading...</div>;
+      if (!currentCharacter) return <div>Loading...</div>;
       return (
         <CharacterDecoScreen 
           onBack={() => setCurrentScreen('home')}
-          character={character}
+          character={currentCharacter}
           onTabChange={handleTabChange}
         />
       );
       
     case 'locationCheck':
-      if (!selectedOnsen) return <div>Loading...</div>;
+      if (!selectedLocation) return <div>Loading...</div>;
       return (
         <LocationCheckScreen 
-          onsen={selectedOnsen}
+          onsen={selectedLocation}
           onBack={() => setCurrentScreen('stampRally')}
           onLocationConfirmed={handleLocationConfirmed}
         />
@@ -298,7 +368,7 @@ export default function App() {
     case 'newLocationCheck':
       return (
         <NewLocationCheckScreen 
-          character={character!}
+          character={currentCharacter!}
           onBack={() => setCurrentScreen('home')}
           onStartBathing={handleStartBathing}
         />
@@ -307,10 +377,10 @@ export default function App() {
 
       
     case 'timer':
-      if (!character) return <div>Loading...</div>;
+      if (!currentCharacter) return <div>Loading...</div>;
       return (
         <TimerScreen 
-          character={character}
+          character={currentCharacter}
           onComplete={handleTimerComplete}
           onCancel={handleTimerCancel}
         />
@@ -325,11 +395,11 @@ export default function App() {
       );
       
     case 'result':
-      if (!character) return <div>Loading...</div>;
+      if (!currentCharacter) return <div>Loading...</div>;
       const timeSpent = timerDuration; // 実際にはタイマーから取得
       const expGained = calculateExpGained(timeSpent);
       const levelUp = checkLevelUp(timeSpent);
-      const newLevel = levelUp ? character.level + 1 : character.level;
+      const newLevel = levelUp ? currentCharacter.level + 1 : currentCharacter.level;
       
       if (!acquiredStamp) return <div>Loading...</div>;
       return (
@@ -337,7 +407,7 @@ export default function App() {
           expGained={expGained}
           levelUp={levelUp}
           newLevel={newLevel}
-          character={character}
+          character={currentCharacter}
           acquiredStamp={acquiredStamp}
           onNavigateToCharacter={handleResultContinue}
         />
