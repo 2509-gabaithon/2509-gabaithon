@@ -5,7 +5,7 @@ import { TitleScreen } from '../components/TitleScreen';
 import { NameInputScreen } from '../components/NameInputScreen';
 import { CharacterNameInputScreen } from '../components/CharacterNameInputScreen';
 import { HomeScreen } from '../components/HomeScreen';
-import { StampRallyScreen } from '../components/StampRallyScreen';
+// import { StampRallyScreen } from '../components/StampRallyScreen';
 import { CharacterDecoScreen } from '../components/CharacterDecoScreen';
 import { LocationCheckScreen } from '../components/LocationCheckScreen';
 import { NewLocationCheckScreen } from '../components/NewLocationCheckScreen';
