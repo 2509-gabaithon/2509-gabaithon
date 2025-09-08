@@ -20,7 +20,7 @@ interface ResultScreenProps {
     exp: number;
     maxExp: number;
   };
-  acquiredStamp: { name: string; icon: string };
+  acquiredStamps?: { name: string; icon: string }[];
   onNavigateToCharacter: () => void;
 }
 
@@ -29,7 +29,7 @@ export function ResultScreen({
   levelUp,
   newLevel,
   character,
-  acquiredStamp,
+  acquiredStamps = [],
   onNavigateToCharacter,
 }: ResultScreenProps) {
   // キャラクターの種類に応じて画像を選択
