@@ -15,6 +15,9 @@ import { ResultScreen } from '@/components/ResultScreen';
 import { TabType } from '@/components/BottomTabNavigation';
 import mochiusa from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png'
 import ureshinoStamp from '@/assets/23d72f267674d7a86e5a4d3966ba367d52634bd9.png'
+import { createClient } from '@/utils/supabase/server';
+import { useRouter } from 'next/router';
+import type { accounts, CredentialResponse } from 'google-one-tap'
 
 type ScreenType = 
   | 'title'
@@ -56,6 +59,8 @@ interface OnsenStamp {
   difficulty: string;
 }
 
+declare const google: { accounts: accounts }
+
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('title');
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -75,22 +80,64 @@ export default function App() {
   const [timerDuration, setTimerDuration] = useState<number>(0);
   const [acquiredStamp, setAcquiredStamp] = useState<{ name: string; icon: string } | null>(null);
 
-  // 初期化
-  useEffect(() => {
-    // ローカルストレージから既存データを確認（実際の実装では）
-    const savedUser = localStorage.getItem('onsenAppUser');
-    if (savedUser) {
-      const user = JSON.parse(savedUser);
-      setUserData(user);
-      // キャラクターデータも復元
-      // const savedCharacter = localStorage.getItem('onsenAppCharacter');
-      // if (savedCharacter) {
-      //   setCharacter(JSON.parse(savedCharacter));
-      // }
+
+  // generate nonce to use for google id token sign-in
+  const generateNonce = async (): Promise<string[]> => {
+  const nonce = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))))
+  const encoder = new TextEncoder()
+  const encodedNonce = encoder.encode(nonce)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', encodedNonce)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hashedNonce = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+  return [nonce, hashedNonce]
+}
+  //ユーザーが最初のログインかどうかを認証する
+  const router = useRouter()
+  const initializeGoogleOneTap = async () => {
+    const supabase = await createClient()
+    console.log('Initializing Google One Tap')
+    const [nonce, hashedNonce] = await generateNonce()
+    console.log('Nonce: ', nonce, hashedNonce)
+    // check if there's already an existing session before initializing the one-tap UI
+    const { data, error } = await supabase.auth.getSession()
+    if (error) {
+      console.error('Error getting session', error)
     }
-  }, []);
+    if (data.session) {
+      router.push('/')
+      return
+    }
+    /* global google */
+    google.accounts.id.initialize({
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+      callback: async (response: CredentialResponse) => {
+        try {
+          // send id token returned in response.credential to supabase
+          const { data, error } = await supabase.auth.signInWithIdToken({
+            provider: 'google',
+            token: response.credential,
+            nonce,
+          })
+          if (error) throw error
+          console.log('Session data: ', data)
+          console.log('Successfully logged in with Google One Tap')
+          // redirect to protected page
+          router.push('/')
+        } catch (error) {
+          console.error('Error logging in with Google One Tap', error)
+        }
+      },
+      nonce: hashedNonce,
+      // with chrome's removal of third-party cookies, we need to use FedCM instead (https://developers.google.com/identity/gsi/web/guides/fedcm-migration)
+      use_fedcm_for_prompt: true,
+    })
+    google.accounts.id.prompt() // Display the One Tap UI
+  }
 
   const handleStart = () => {
+    //認証のチェック
+    initializeGoogleOneTap()
+
     if (userData) {
       setCurrentScreen('home');
     } else {
