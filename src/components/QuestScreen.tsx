@@ -1,0 +1,216 @@
+import React from 'react';
+import { Button } from './ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Badge } from './ui/badge';
+import { Progress } from './ui/progress';
+import { CheckCircle, ArrowLeft, Sparkles } from 'lucide-react';
+import { BottomTabNavigation, TabType } from './BottomTabNavigation';
+import stampImage from '@/assets/23d72f267674d7a86e5a4d3966ba367d52634bd9.png';
+import noiseTexture from '@/assets/221bcc06007de28e2dedf86e88d0a2798eac78e7.png';
+
+interface Quest {
+  id: number;
+  name: string;
+  image: string;
+  completed: boolean;
+  difficulty: string;
+}
+
+interface QuestListScreenProps {
+  onBack: () => void;
+  onSelectQuest: (quest: any) => void;
+  onTabChange?: (tab: TabType) => void;
+}
+
+const mockQuests: Quest[] = [
+  {
+    id: 1,
+    name: "初回入浴クエスト",
+    image: stampImage.src,
+    completed: true,
+    difficulty: "初級"
+  },
+  {
+    id: 2,
+    name: "長湯マスタークエスト",
+    image: stampImage.src,
+    completed: false,
+    difficulty: "上級"
+  },
+  {
+    id: 3,
+    name: "リラックスクエスト",
+    image: stampImage.src,
+    completed: false,
+    difficulty: "中級"
+  }
+];
+
+export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestListScreenProps) {
+  const completedCount = mockQuests.filter(quest => quest.completed).length;
+  const totalCount = mockQuests.length;
+  const progressPercentage = (completedCount / totalCount) * 100;
+
+  const handleTabChange = (tab: TabType) => {
+    if (onTabChange) {
+      onTabChange(tab);
+    }
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case '初級': return 'bg-app-main';
+      case '中級': return 'bg-app-accent-1-dark';
+      case '上級': return 'bg-app-base';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-app-base via-app-main-dark to-app-main relative overflow-hidden p-4 pb-32">
+      {/* Background sparkles */}
+      <div className="absolute inset-0">
+        <div className="absolute top-20 left-10 text-white/30 animate-pulse">
+          <Sparkles className="w-6 h-6" />
+        </div>
+        <div className="absolute top-32 right-16 text-white/20 animate-pulse">
+          <Sparkles className="w-4 h-4" />
+        </div>
+        <div className="absolute top-48 left-20 text-white/25 animate-pulse">
+          <Sparkles className="w-5 h-5" />
+        </div>
+        <div className="absolute bottom-32 right-10 text-white/30 animate-pulse">
+          <Sparkles className="w-6 h-6" />
+        </div>
+        <div className="absolute bottom-48 left-14 text-white/20 animate-pulse">
+          <Sparkles className="w-4 h-4" />
+        </div>
+      </div>
+
+      <div className="max-w-md mx-auto relative z-10">
+        <div className="flex items-center mb-6">
+          <Button variant="ghost" onClick={onBack} className="mr-2 p-2 text-white hover:bg-white/20">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-2xl font-bold text-white">クエスト一覧</h1>
+        </div>
+
+        <Card className="mb-6 bg-white/95 backdrop-blur-sm border-white/20">
+          <CardHeader>
+            <CardTitle className="text-center text-app-base">進捗状況</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center mb-4">
+              <span className="text-3xl font-bold text-app-base">
+                {completedCount} / {totalCount}
+              </span>
+              <p className="text-app-base-light">クエスト完了</p>
+            </div>
+            <Progress value={progressPercentage} className="h-3 mb-2" />
+            <p className="text-center text-sm text-app-base-light">
+              {progressPercentage.toFixed(0)}% 達成
+            </p>
+          </CardContent>
+        </Card>
+
+        <div className="space-y-4">
+          {mockQuests.map((quest) => (
+            <Card 
+              key={quest.id} 
+              className={`cursor-pointer transition-all bg-white/95 backdrop-blur-sm border-white/20 ${
+                quest.completed ? 'border-app-main shadow-lg' : 'hover:shadow-md hover:bg-white'
+              }`}
+              onClick={() => onSelectQuest(quest)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center">
+                  <div className="relative">
+                    {/* スタンプ画像 */}
+                    <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+                      <img
+                        src={quest.image}
+                        alt={quest.name}
+                        className="w-16 h-16 object-contain relative z-10"
+                        style={{
+                          filter: `
+                            contrast(1.2) 
+                            brightness(0.9)
+                            sepia(0.1)
+                          `,
+                        }}
+                      />
+                      
+                      {/* 白いノイズテクスチャオーバーレイ */}
+                      <div 
+                        className="absolute inset-0 w-16 h-16 opacity-25 pointer-events-none z-20"
+                        style={{
+                          backgroundImage: `url(${noiseTexture.src})`,
+                          backgroundSize: '64px 64px',
+                          backgroundRepeat: 'repeat',
+                          mixBlendMode: 'screen',
+                          mask: `url(${quest.image})`,
+                          maskSize: 'contain',
+                          maskRepeat: 'no-repeat',
+                          maskPosition: 'center',
+                          WebkitMask: `url(${quest.image})`,
+                          WebkitMaskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center'
+                        }}
+                      />
+
+                      {/* 印影効果 */}
+                      <div 
+                        className="absolute inset-0 w-16 h-16 opacity-20 pointer-events-none z-15"
+                        style={{
+                          background: `radial-gradient(ellipse at center, transparent 50%, rgba(93, 104, 138, 0.4) 65%, rgba(93, 104, 138, 0.6) 75%, transparent 90%)`,
+                          mixBlendMode: 'multiply',
+                          mask: `url(${quest.image})`,
+                          maskSize: 'contain',
+                          maskRepeat: 'no-repeat',
+                          maskPosition: 'center',
+                          WebkitMask: `url(${quest.image})`,
+                          WebkitMaskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center'
+                        }}
+                      />
+                    </div>
+                    
+                    {quest.completed && (
+                      <CheckCircle className="absolute -top-2 -right-2 h-6 w-6 text-app-main bg-white rounded-full" />
+                    )}
+                  </div>
+                  
+                  <div className="ml-4 flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-bold text-app-base">{quest.name}</h3>
+                      <Badge className={getDifficultyColor(quest.difficulty)}>
+                        {quest.difficulty}
+                      </Badge>
+                    </div>
+                    
+                    {quest.completed ? (
+                      <Badge className="bg-app-main">
+                        ✓ 完了済み
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="border-app-base-light text-app-base-light">
+                        未完了
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+      
+      <BottomTabNavigation 
+        activeTab="none" 
+        onTabChange={handleTabChange}
+      />
+    </div>
+  );
+}
