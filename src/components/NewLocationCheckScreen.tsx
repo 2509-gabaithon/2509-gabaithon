@@ -44,8 +44,9 @@ const SIMULATED_USER_LNG = 139.1065; // 少し西
 
 const GOOGLE_MAP_LIBRARIES = ['places'];
 
-// 最大で行ける温泉距離
-const MAX_ONSEN_DISTANCE = 150;
+// 温泉の範囲
+const MAX_ONSEN_DISTANCE = 130;
+
 export function NewLocationCheckScreen({
   // 距離計算関数（ハバーサイン公式）
   // const calculateDistance = (
