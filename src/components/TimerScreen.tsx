@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
-import { Card, CardContent } from './ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { Sparkles } from 'lucide-react';
 import kawaiiImage from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
+import backgroundImage from '@/assets/ac98676411915df3391ad15ed92a3dbb57c0f66a.png';
 
 interface Character {
   name: string;
@@ -49,8 +49,8 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  // 背景色を時間に応じて変化させる関数
-  const getBackgroundColor = (seconds: number) => {
+  // タイマー数字の色を時間に応じて変化させる関数
+  const getTimerTextColor = (seconds: number) => {
     const minutes = seconds / 60;
     if (minutes >= 30) {
       return '#f7a5a5'; // 30分以上はメインカラー固定
@@ -59,10 +59,10 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
     // 0分から30分まで線形補間
     const progress = minutes / 30; // 0〜1の値
     
-    // ベースカラー (#5d688a) からメインカラー (#f7a5a5) への補間
-    const baseR = 0x5d;
-    const baseG = 0x68;
-    const baseB = 0x8a;
+    // 白色 (#ffffff) からメインカラー (#f7a5a5) への補間
+    const baseR = 0xff;
+    const baseG = 0xff;
+    const baseB = 0xff;
     
     const targetR = 0xf7;
     const targetG = 0xa5;
@@ -100,12 +100,17 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
     setShowExitModal(false);
   };
 
-  const currentBackgroundColor = getBackgroundColor(timeElapsed);
+  const currentTimerColor = getTimerTextColor(timeElapsed);
 
   return (
     <div 
-      className="min-h-screen p-4 relative overflow-hidden transition-colors duration-1000" 
-      style={{ backgroundColor: currentBackgroundColor }}
+      className="min-h-screen p-4 relative overflow-hidden"
+      style={{
+        backgroundImage: `url(${backgroundImage.src})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
     >
       {/* Steam animation styles */}
       <style jsx>{`
@@ -197,19 +202,19 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
 
       {/* Background stars/sparkles */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 text-white/30 animate-pulse">
+        <div className="absolute top-20 left-10 text-app-accent-1/80 animate-pulse">
           <Sparkles className="w-6 h-6" />
         </div>
-        <div className="absolute top-32 right-16 text-white/20 animate-pulse">
+        <div className="absolute top-32 right-16 text-app-accent-1/60 animate-pulse">
           <Sparkles className="w-4 h-4" />
         </div>
-        <div className="absolute top-48 left-20 text-white/25 animate-pulse">
+        <div className="absolute top-48 left-20 text-app-accent-1/70 animate-pulse">
           <Sparkles className="w-5 h-5" />
         </div>
-        <div className="absolute bottom-32 right-10 text-white/30 animate-pulse">
+        <div className="absolute bottom-32 right-10 text-app-accent-1/80 animate-pulse">
           <Sparkles className="w-6 h-6" />
         </div>
-        <div className="absolute bottom-48 left-14 text-white/20 animate-pulse">
+        <div className="absolute bottom-48 left-14 text-app-accent-1/60 animate-pulse">
           <Sparkles className="w-4 h-4" />
         </div>
       </div>
@@ -239,73 +244,42 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
         </div>
       </div>
 
-      <div className="max-w-md mx-auto flex flex-col justify-center min-h-screen relative z-10">
+      <div className="max-w-md mx-auto flex flex-col min-h-screen relative z-10">
         
-        {/* タイマー表示 */}
-        <div className="text-center mb-8">
-          <div className="text-8xl font-bold text-white mb-4 drop-shadow-lg">
+        {/* タイマー表示 - 上の方に配置 */}
+        <div className="text-center mt-24 mb-auto">
+          <div 
+            className="text-8xl font-bold mb-4 drop-shadow-lg"
+            style={{ color: currentTimerColor }}
+          >
             {formatTime(timeElapsed)}
           </div>
-          <p className="text-lg text-white/90">
+          <p className="text-lg text-white">
             {isRunning ? '入浴中...' : '温泉タイマー'}
           </p>
         </div>
 
-        {/* キャラクター表示 */}
-        <Card className="mb-8 bg-white/90 shadow-lg">
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="w-32 h-32 mx-auto mb-4 bg-app-accent-2 rounded-full border-4 border-app-accent-1 flex items-center justify-center overflow-hidden relative">
-                <img
-                  src={kawaiiImage.src}
-                  alt={character.name}
-                  className="w-28 h-28 object-contain character-pulse absolute top-1/2 left-1/2"
-                />
-                {/* キャラクター周りのキラキラ */}
-                <div className="absolute -top-2 -right-2 text-yellow-300 animate-bounce">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div className="absolute -bottom-2 -left-2 text-pink-300 animate-bounce" style={{ animationDelay: '0.5s' }}>
-                  <Sparkles className="w-4 h-4" />
-                </div>
-              </div>
-              
-              <h2 className="text-xl font-bold text-app-base mb-2">{character.name}</h2>
-              
-              {isRunning && (
-                <div className="mt-4 p-3 bg-white/95 rounded-lg shadow-md border border-white/20">
-                  <p className="text-sm text-app-base">
-                    {timeElapsed < 60 ? '温泉に入ったばかり...' :
-                     timeElapsed < 300 ? 'だんだん温まってきた♪' :
-                     timeElapsed < 600 ? 'とってもリラックス中♨️' :
-                     timeElapsed < 1200 ? 'すっかり癒されてる〜😌' :
-                     timeElapsed < 1800 ? '最高の温泉タイム！🥰' :
-                     '極上のリラックス状態✨'}
-                  </p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        {/* ボタン群 - 下の方に配置 */}
+        <div className="mt-auto mb-12">
+          {/* 入浴ボタン */}
+          <Button 
+            size="lg" 
+            className="w-full mb-6 py-4 text-lg shadow-lg bg-app-main hover:bg-app-main-dark text-white border-app-main"
+            onClick={handleButtonClick}
+          >
+            {buttonText}
+          </Button>
 
-        {/* 入浴ボタン */}
-        <Button 
-          size="lg" 
-          className="w-full mb-6 py-4 text-lg shadow-lg bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-white/30"
-          onClick={handleButtonClick}
-        >
-          {buttonText}
-        </Button>
-
-        {/* キャンセルボタン */}
-        <Button
-          variant="outline"
-          size="lg"
-          className="w-full bg-white/10 backdrop-blur-sm text-white border-white/30 hover:bg-white/20"
-          onClick={onCancel}
-        >
-          ホームに戻る
-        </Button>
+          {/* キャンセルボタン */}
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full bg-white/10 backdrop-blur-sm text-white border-white/30 hover:bg-white/20"
+            onClick={onCancel}
+          >
+            ホームに戻る
+          </Button>
+        </div>
 
       </div>
 
