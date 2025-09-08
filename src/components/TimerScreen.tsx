@@ -12,7 +12,6 @@ interface Character {
   exp: number;
   maxExp: number;
   happiness: number;
-  stamina: number;
   onsenCount: number;
 }
 
