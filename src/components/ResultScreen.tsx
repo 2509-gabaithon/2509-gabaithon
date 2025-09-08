@@ -113,8 +113,8 @@ export function ResultScreen({
               <div className="text-center">
                 <div
                   className={`flex ${acquiredStamps.length > 2
-                      ? "overflow-x-scroll"
-                      : "justify-center"
+                    ? "overflow-x-scroll"
+                    : "justify-center"
                     }`}
                 >
                   {acquiredStamps.map((stamp, idx) => (
@@ -128,7 +128,7 @@ export function ResultScreen({
                           {/* スタンプ画像 */}
                           <img
                             src={stamp.icon}
-                            alt="温泉スタンプ"
+                            alt={stamp.name}
                             className="w-24 h-24 object-contain relative z-10"
                             style={{
                               filter: `
