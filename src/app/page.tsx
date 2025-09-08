@@ -328,7 +328,7 @@ export default function App() {
           levelUp={levelUp}
           newLevel={newLevel}
           character={character}
-          acquiredStamp={acquiredStamp}
+          acquiredStamps={[acquiredStamp]}
           onNavigateToCharacter={handleResultContinue}
         />
       );
