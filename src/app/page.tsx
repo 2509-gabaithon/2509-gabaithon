@@ -98,7 +98,7 @@ export default function App() {
     const supabase = await createClient()
 
     //認証のチェック
-    const user = supabase.auth.getUser()
+    const user = await supabase.auth.getUser()
     if (!user) {
       supabase.auth.signInWithOAuth({
         provider: 'google',
