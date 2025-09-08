@@ -38,7 +38,7 @@ const GOOGLE_MAP_LIBRARIES = ['places'];
 // 温泉の範囲
 const MAX_ONSEN_DISTANCE = 130;
 
-export function NewLocationCheckScreen({の
+export function NewLocationCheckScreen({
   onBack,
   onStartBathing,
   character,
@@ -54,7 +54,6 @@ export function NewLocationCheckScreen({の
   const [currentPosition, setCurrentPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [onsenLocations, setOnsenLocations] = useState<any[]>([]);
   const [activeOnsenIdx, setActiveOnsenIdx] = useState<number | null>(null);
-  const [distance, setDistance] = useState<number>(0);
   const [isNearOnsen, setIsNearOnsen] = useState<boolean>(false);
   const [locationError, setLocationError] = useState<boolean>(false);
 
@@ -103,10 +102,8 @@ export function NewLocationCheckScreen({の
           const dist = calculateDistance(currentPosition.lat, currentPosition.lng, lat, lng);
           if (dist < minDist) minDist = dist;
         });
-        setDistance(Math.round(minDist));
         setIsNearOnsen(minDist <= MAX_ONSEN_DISTANCE);
       } else {
-        setDistance(0);
         setIsNearOnsen(false);
       }
     });
