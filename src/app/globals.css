@@ -1,2 +1,39 @@
 @import "tailwindcss";
 @import "../styles/index.css";
+
+/* 1) 既定は選択不可にする */
+html,
+body,
+#__next {
+  height: 100%;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none; /* iOS長押しメニュー抑止 */
+  -webkit-tap-highlight-color: transparent; /* タップ時のハイライト除去 */
+  touch-action: manipulation; /* ダブルタップズーム抑止(対応ブラウザ) */
+  overscroll-behavior: none; /* 画面端の引っ張り動作抑止(必要なら) */
+}
+
+/* 2) 入力系は例外として選択OKに戻す（使い勝手を壊さない） */
+input,
+textarea,
+select,
+[contenteditable="true"],
+.selectable {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
+/* 3) 画像のドラッグやロングタップ保存の見た目を抑える */
+img {
+  -webkit-user-drag: none; /* 画像ドラッグ抑止（Safari系） */
+  user-drag: none;
+}
+
+/* 4) iOSでフォーカス時の自動ズーム対策（16px未満でズームする仕様） */
+input,
+textarea,
+select {
+  font-size: 16px; /* これが最重要。ズーム抑止に効く */
+}
