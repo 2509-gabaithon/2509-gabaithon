@@ -59,7 +59,16 @@ interface OnsenStamp {
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('title');
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [character, setCharacter] = useState<Character | null>(null);
+  const [character, setCharacter] = useState<Character | null>({
+        name: 'もちもちうさぎ',
+        type: "aaa",
+        level: 1,
+        exp: 0,
+        maxExp: 100,
+        happiness: 80,
+        stamina: 100,
+        onsenCount: 0
+      });
   const [tempUserName, setTempUserName] = useState<string>('');
   const [characterName, setCharacterName] = useState<string>('もちもちうさぎ');
   const [selectedOnsen, setSelectedOnsen] = useState<OnsenStamp | null>(null);
@@ -74,10 +83,10 @@ export default function App() {
       const user = JSON.parse(savedUser);
       setUserData(user);
       // キャラクターデータも復元
-      const savedCharacter = localStorage.getItem('onsenAppCharacter');
-      if (savedCharacter) {
-        setCharacter(JSON.parse(savedCharacter));
-      }
+      // const savedCharacter = localStorage.getItem('onsenAppCharacter');
+      // if (savedCharacter) {
+      //   setCharacter(JSON.parse(savedCharacter));
+      // }
     }
   }, []);
 
