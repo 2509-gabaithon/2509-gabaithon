@@ -1,19 +1,20 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { TitleScreen } from '../components/TitleScreen';
-import { NameInputScreen } from '../components/NameInputScreen';
-import { CharacterNameInputScreen } from '../components/CharacterNameInputScreen';
-import { HomeScreen } from '../components/HomeScreen';
-import { StampRallyScreen } from '../components/StampRallyScreen';
-import { CharacterDecoScreen } from '../components/CharacterDecoScreen';
-import { LocationCheckScreen } from '../components/LocationCheckScreen';
-import { NewLocationCheckScreen } from '../components/NewLocationCheckScreen';
-
-import { TimerScreen } from '../components/TimerScreen';
-import { StampAcquisitionScreen } from '../components/StampAcquisitionScreen';
-import { ResultScreen } from '../components/ResultScreen';
-import { TabType } from '../components/BottomTabNavigation';
+import { TitleScreen } from '@/components/TitleScreen';
+import { NameInputScreen } from '@/components/NameInputScreen';
+import { CharacterNameInputScreen } from '@/components/CharacterNameInputScreen';
+import { HomeScreen } from '@/components/HomeScreen';
+import { StampRallyScreen as QuestScreen } from '@/components/QuestScreen';
+import { CharacterDecoScreen } from '@/components/CharacterDecoScreen';
+import { LocationCheckScreen } from '@/components/LocationCheckScreen';
+import { NewLocationCheckScreen } from '@/components/NewLocationCheckScreen';
+import { TimerScreen } from '@/components/TimerScreen';
+import { StampAcquisitionScreen } from '@/components/StampAcquisitionScreen';
+import { ResultScreen } from '@/components/ResultScreen';
+import { TabType } from '@/components/BottomTabNavigation';
+import mochiusa from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png'
+import ureshinoStamp from '@/assets/23d72f267674d7a86e5a4d3966ba367d52634bd9.png'
 
 type ScreenType = 
   | 'title'
@@ -58,7 +59,16 @@ interface OnsenStamp {
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('title');
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [character, setCharacter] = useState<Character | null>(null);
+  const [character, setCharacter] = useState<Character | null>({
+        name: 'もちもちうさぎ',
+        type: "aaa",
+        level: 1,
+        exp: 0,
+        maxExp: 100,
+        happiness: 80,
+        stamina: 100,
+        onsenCount: 0
+      });
   const [tempUserName, setTempUserName] = useState<string>('');
   const [characterName, setCharacterName] = useState<string>('もちもちうさぎ');
   const [selectedOnsen, setSelectedOnsen] = useState<OnsenStamp | null>(null);
@@ -73,10 +83,10 @@ export default function App() {
       const user = JSON.parse(savedUser);
       setUserData(user);
       // キャラクターデータも復元
-      const savedCharacter = localStorage.getItem('onsenAppCharacter');
-      if (savedCharacter) {
-        setCharacter(JSON.parse(savedCharacter));
-      }
+      // const savedCharacter = localStorage.getItem('onsenAppCharacter');
+      // if (savedCharacter) {
+      //   setCharacter(JSON.parse(savedCharacter));
+      // }
     }
   }, []);
 
@@ -148,7 +158,7 @@ export default function App() {
     // タイマーの時間を保存してスタンプ獲得画面へ
     setTimerDuration(timeSpent);
     // 獲得するスタンプ情報を設定
-    setAcquiredStamp({ name: '箱根湯本温泉', icon: '🌸' });
+    setAcquiredStamp({ name: '箱根湯本温泉', icon: ureshinoStamp.src });
     setCurrentScreen('stampAcquisition');
   };
 
@@ -222,13 +232,13 @@ export default function App() {
       return <TitleScreen onStart={handleStart} onSettings={handleDebugSettings} />;
       
     case 'nameInput':
-      return <NameInputScreen onNext={handleNameInput} initialName={tempUserName} />;
+      return <NameInputScreen onNext={handleNameInput} userName={tempUserName} />;
       
     case 'characterSelect':
       return (
         <CharacterNameInputScreen 
           userName={tempUserName}
-          characterName={characterName}
+          character={{...character!, id: character!.type, description: 'ここにパートナーの説明が入る', image: mochiusa}}
           onBack={() => setCurrentScreen('nameInput')}
           onCharacterNameChange={handleCharacterNameChange}
           onComplete={handleCharacterSelect}
@@ -240,7 +250,6 @@ export default function App() {
       return (
         <HomeScreen 
           character={character}
-          userName={userData.name}
           onNavigateToStampRally={() => setCurrentScreen('stampRally')}
           onNavigateToDecoration={() => setCurrentScreen('decoration')}
           onTabChange={handleTabChange}
@@ -249,9 +258,9 @@ export default function App() {
       
     case 'stampRally':
       return (
-        <StampRallyScreen 
+        <QuestScreen 
           onBack={() => setCurrentScreen('home')}
-          onSelectOnsen={handleOnsenSelect}
+          onSelectQuest={handleOnsenSelect}
           onTabChange={handleTabChange}
         />
       );
@@ -279,6 +288,7 @@ export default function App() {
     case 'newLocationCheck':
       return (
         <NewLocationCheckScreen 
+          character={character!}
           onBack={() => setCurrentScreen('home')}
           onStartBathing={handleStartBathing}
         />
@@ -299,6 +309,7 @@ export default function App() {
     case 'stampAcquisition':
       return (
         <StampAcquisitionScreen 
+          acquiredStamp={acquiredStamp!}
           onComplete={handleStampAcquisitionComplete}
         />
       );
@@ -313,19 +324,12 @@ export default function App() {
       if (!acquiredStamp) return <div>Loading...</div>;
       return (
         <ResultScreen 
-          timeSpent={timeSpent}
-          onsen={{ name: '箱根湯本温泉', image: '', id: 1, location: '箱根', visited: true, distance: 0, difficulty: 'easy' }}
           expGained={expGained}
           levelUp={levelUp}
           newLevel={newLevel}
-          character={{
-            name: character.name,
-            level: character.level,
-            exp: character.exp,
-            maxExp: character.maxExp
-          }}
+          character={character}
           acquiredStamp={acquiredStamp}
-          onContinue={handleResultContinue}
+          onNavigateToCharacter={handleResultContinue}
         />
       );
       
