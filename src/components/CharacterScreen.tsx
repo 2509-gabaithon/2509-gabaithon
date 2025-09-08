@@ -56,7 +56,7 @@ export function CharacterScreen({ character, userName, onNavigateToStampRally, o
           <CardContent className="pt-6">
             <div className="text-center mb-4">
               <img
-                src={getCharacterImage()}
+                src={getCharacterImage().src}
                 alt={character.name}
                 className="w-32 h-32 mx-auto object-contain mb-3"
               />
