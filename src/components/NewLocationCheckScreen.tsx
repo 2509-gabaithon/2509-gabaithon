@@ -3,7 +3,6 @@ import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { ArrowLeft, MapPin, Navigation } from "lucide-react";
 
-import mapImage from "@/assets/1a0f3b4eaaf666c678218990a5f3915504e73d9c.png";
 import beppyonImage from "@/assets/3c6e9e82c814a4dcb5208e61977d5118a50e6a2c.png";
 import yuttsuraImage from "@/assets/cc82c1498637df3406caa6867e011e9f0b8813d7.png";
 import kawaiiImage from "@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png";
@@ -11,7 +10,8 @@ import { GoogleMap, Marker, Circle, InfoWindow, useJsApiLoader } from '@react-go
 
 interface NewLocationCheckScreenProps {
   onBack: () => void;
-  onStartBathing: () => void;
+  onStartBathing: () => void;  
+  setOnsen: (name: string) => void;
   character: { name: string; type: string };
 }
 
@@ -36,11 +36,12 @@ const calculateDistance = (
 const GOOGLE_MAP_LIBRARIES = ['places'];
 
 // 温泉の範囲
-const MAX_ONSEN_DISTANCE = 130;
+const MAX_ONSEN_DISTANCE = 150;
 
 export function NewLocationCheckScreen({
   onBack,
   onStartBathing,
+  setOnsen,
   character,
 }: NewLocationCheckScreenProps) {
   const containerStyle = {
@@ -90,7 +91,6 @@ export function NewLocationCheckScreen({
     }
   };
 
-
   useEffect(() => {
     getLocation();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -103,12 +103,16 @@ export function NewLocationCheckScreen({
     const request = {
       location: currentPosition,
       radius: 5000, // 5km以内
-      keyword: '温泉',
-      // type: 'spa',
+      // keyword: '温泉',
+      type: 'spa',
     };
     service.nearbySearch(request, (results, status) => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
         setOnsenLocations(results);
+        // 取得した温泉情報を全件コンソール出力
+        results.forEach((place: any, idx: number) => {
+          console.log(idx, place.name, place, place.id);
+        });
         // 最も近い温泉までの距離を計算
         let minDist = Infinity;
         results.forEach((place: any) => {
@@ -170,7 +174,10 @@ export function NewLocationCheckScreen({
                       url: '/spa.png',
                       scaledSize: new window.google.maps.Size(40, 40),
                     }}
-                    onClick={() => setActiveOnsenIdx(idx)}
+                    onClick={() => {
+                      setActiveOnsenIdx(idx);
+                      setOnsen(onsenLocations[idx].name);
+                    }}
                   />
                   {activeOnsenIdx === idx && (
                     <InfoWindow
@@ -211,8 +218,10 @@ export function NewLocationCheckScreen({
               <div>
                 <p className="font-medium">
                   {activeOnsenIdx !== null && onsenLocations[activeOnsenIdx]
-                    ? onsenLocations[activeOnsenIdx].name
-                    : "未選択"}
+                  ? onsenLocations[activeOnsenIdx].name
+                  : onsenLocations.length > 0
+                    ? onsenLocations[0].name
+                    : '[未選択]'}
                 </p>
                 <p className="text-sm text-app-base-light">
                   距離: {
@@ -266,14 +275,32 @@ export function NewLocationCheckScreen({
 
       {/* 入浴ボタン - オーバーレイ */}
       <div className="absolute bottom-38 left-4 right-4 z-20">
-        <Button
-          size="lg"
-          className="w-full"
-          onClick={onStartBathing}
-          disabled={!isNearOnsen}
-        >
-          {isNearOnsen ? "入浴する！" : "温泉の近くではありません"}
-        </Button>
+        {activeOnsenIdx !== null && onsenLocations[activeOnsenIdx] ? (
+          (() => {
+            const selectedOnsen = onsenLocations[activeOnsenIdx];
+            const distance = calculateDistance(
+              currentPosition?.lat ?? 0,
+              currentPosition?.lng ?? 0,
+              selectedOnsen.geometry.location.lat(),
+              selectedOnsen.geometry.location.lng()
+            );
+            const canBath = distance <= MAX_ONSEN_DISTANCE;
+            return (
+              <Button
+                size="lg"
+                className="w-full"
+                onClick={onStartBathing}
+                disabled={!canBath}
+              >
+                {canBath ? "入浴する！" : "温泉の近くではありません"}
+              </Button>
+            );
+          })()
+        ) : (
+          <Button size="lg" className="w-full" disabled>
+            温泉が選択されていません
+          </Button>
+        )}
       </div>
     </div>
   );
