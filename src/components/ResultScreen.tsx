@@ -88,12 +88,14 @@ export function ResultScreen({
                     </span>
                   </div>
                   <Progress
-                    value={character.exp / character.maxExp * 100}
+                    value={(character.exp / character.maxExp) * 100}
                     className="h-3 bg-app-accent-2-light"
                   />
                   <div className="flex justify-between text-xs text-app-base-light mt-1">
                     <span>0</span>
-                    <span>{character.exp} / {character.maxExp}</span>
+                    <span>
+                      {character.exp} / {character.maxExp}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -109,50 +111,60 @@ export function ResultScreen({
             </CardHeader>
             <CardContent>
               <div className="text-center">
-                <div className="flex justify-center">
-                  <div className="p-6 bg-app-accent-1-light rounded-lg">
-                    {/* リアルなスタンプ表示 */}
-                    <div className="relative mb-3 flex justify-center">
-                      <div className="relative w-24 h-24">
-                        {/* スタンプ画像 */}
-                        <img
-                          src={acquiredStamp.icon}
-                          alt="温泉スタンプ"
-                          className="w-24 h-24 object-contain relative z-10"
-                          style={{
-                            filter: `
-                            contrast(1.2) 
-                            brightness(0.9)
-                            sepia(0.1)
-                          `,
-                          }}
-                        />
+                <div
+                  className={`flex ${acquiredStamps.length > 2
+                      ? "overflow-x-scroll"
+                      : "justify-center"
+                    }`}
+                >
+                  {acquiredStamps.map((stamp, idx) => (
+                    <div
+                      key={idx}
+                      className="p-6 bg-app-accent-1-light rounded-lg mx-2"
+                    >
+                      {/* リアルなスタンプ表示 */}
+                      <div className="relative mb-3 flex justify-center">
+                        <div className="relative w-24 h-24">
+                          {/* スタンプ画像 */}
+                          <img
+                            src={stamp.icon}
+                            alt="温泉スタンプ"
+                            className="w-24 h-24 object-contain relative z-10"
+                            style={{
+                              filter: `
+                                contrast(1.2) 
+                                brightness(0.9)
+                                sepia(0.1)
+                              `,
+                            }}
+                          />
 
-                        {/* 白いノイズテクスチャオーバーレイ */}
-                        <div
-                          className="absolute inset-0 w-24 h-24 opacity-25 pointer-events-none z-20"
-                          style={{
-                            backgroundImage: `url(${noiseTexture.src})`,
-                            backgroundSize: "100px 100px",
-                            backgroundRepeat: "repeat",
-                            mixBlendMode: "screen",
-                            mask: `url(${acquiredStamp.icon})`,
-                            maskSize: "contain",
-                            maskRepeat: "no-repeat",
-                            maskPosition: "center",
-                            WebkitMask: `url(${acquiredStamp.icon})`,
-                            WebkitMaskSize: "contain",
-                            WebkitMaskRepeat: "no-repeat",
-                            WebkitMaskPosition: "center",
-                          }}
-                        />
+                          {/* 白いノイズテクスチャオーバーレイ */}
+                          <div
+                            className="absolute inset-0 w-24 h-24 opacity-25 pointer-events-none z-20"
+                            style={{
+                              backgroundImage: `url(${noiseTexture.src})`,
+                              backgroundSize: "100px 100px",
+                              backgroundRepeat: "repeat",
+                              mixBlendMode: "screen",
+                              mask: `url(${stamp.icon})`,
+                              maskSize: "contain",
+                              maskRepeat: "no-repeat",
+                              maskPosition: "center",
+                              WebkitMask: `url(${stamp.icon})`,
+                              WebkitMaskSize: "contain",
+                              WebkitMaskRepeat: "no-repeat",
+                              WebkitMaskPosition: "center",
+                            }}
+                          />
+                        </div>
                       </div>
+                      <p className="font-medium text-app-base mb-1">
+                        {stamp.name}
+                      </p>
+                      <Badge className="bg-app-main">新規獲得</Badge>
                     </div>
-                    <p className="font-medium text-app-base mb-1">
-                      {acquiredStamp.name}
-                    </p>
-                    <Badge className="bg-app-main">新規獲得</Badge>
-                  </div>
+                  ))}
                 </div>
               </div>
             </CardContent>
