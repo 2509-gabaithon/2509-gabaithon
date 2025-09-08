@@ -79,20 +79,6 @@ export default function App() {
   const [selectedOnsen, setSelectedOnsen] = useState<OnsenStamp | null>(null);
   const [timerDuration, setTimerDuration] = useState<number>(0);
   const [acquiredStamp, setAcquiredStamp] = useState<{ name: string; icon: string } | null>(null);
-
-
-  // generate nonce to use for google id token sign-in
-  const generateNonce = async (): Promise<string[]> => {
-  const nonce = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))))
-  const encoder = new TextEncoder()
-  const encodedNonce = encoder.encode(nonce)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', encodedNonce)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const hashedNonce = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-  return [nonce, hashedNonce]
-}
-  //ユーザーが最初のログインかどうかを認証する
-  const router = useRouter()
   
   const handleStart = async () => {
     const supabase = await createClient()
@@ -100,12 +86,17 @@ export default function App() {
     //認証のチェック
     const user = await supabase.auth.getUser()
     if (!user) {
-      supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: process.env.NEXT_PUBLIC_CALLBACK_URL || 'http://localhost:3000/auth/callback',
         }
       })
+      if (error) {
+        console.error('Error during sign-in:', error);
+        return;
+      }
+      console.log('Sign-in initiated:', data);
     } else {
       console.log('User already signed in:', user)
     }
