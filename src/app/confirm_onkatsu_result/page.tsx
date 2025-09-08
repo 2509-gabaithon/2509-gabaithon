@@ -14,10 +14,20 @@ export default function ConfirmOnkatsuResult() {
     maxExp: 200,
   };
 
-  const acquiredStamp = {
-    name: "温泉スタンプ",
-    icon: onsenStamp.src,
-  };
+  const acquiredStamps = [
+    {
+      name: "温泉スタンプ",
+      icon: onsenStamp.src,
+    },
+    {
+      name: "温泉スタンプ",
+      icon: onsenStamp.src,
+    },
+    {
+      name: "温泉スタンプ",
+      icon: onsenStamp.src,
+    },
+  ];
 
   const handleNavigateToCharacter = () => {
     console.log("キャラクター画面へ移動");
@@ -28,7 +38,7 @@ export default function ConfirmOnkatsuResult() {
       expGained={expGained}
       levelUp={levelUp}
       character={character}
-      acquiredStamp={acquiredStamp}
+      acquiredStamps={acquiredStamps}
       onNavigateToCharacter={handleNavigateToCharacter}
     />
   );
