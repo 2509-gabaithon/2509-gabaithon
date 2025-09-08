@@ -40,6 +40,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "embla-carousel-react": "^8.6.0",
+    "google-one-tap": "^1.0.6",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.542.0",
     "motion": "^12.23.12",
@@ -58,6 +59,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.12",
+    "@types/google-one-tap": "^1.2.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
