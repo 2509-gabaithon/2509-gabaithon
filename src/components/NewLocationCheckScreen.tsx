@@ -33,41 +33,12 @@ const calculateDistance = (
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 };
-
-// 温泉の位置データ（箱根湯本温泉の座標）
-const HAKONE_YUMOTO_LAT = 35.2322;
-const HAKONE_YUMOTO_LNG = 139.1069;
-
-// 現在地のシミュレーション（箱根湯本温泉から500m以内）
-const SIMULATED_USER_LAT = 35.2318; // 少し南
-const SIMULATED_USER_LNG = 139.1065; // 少し西
-
 const GOOGLE_MAP_LIBRARIES = ['places'];
 
 // 温泉の範囲
 const MAX_ONSEN_DISTANCE = 130;
 
-export function NewLocationCheckScreen({
-  // 距離計算関数（ハバーサイン公式）
-  // const calculateDistance = (
-  //   lat1: number,
-  //   lng1: number,
-  //   lat2: number,
-  //   lng2: number
-  // ): number => {
-  //   const R = 6371000; // 地球の半径（メートル）
-  //   const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  //   const dLng = ((lng2 - lng1) * Math.PI) / 180;
-  //   const a =
-  //     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-  //     Math.cos((lat1 * Math.PI) / 180) *
-  //     Math.cos((lat2 * Math.PI) / 180) *
-  //     Math.sin(dLng / 2) * Math.sin(dLng / 2);
-  //   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  //   return R * c;
-  // };
-
-
+export function NewLocationCheckScreen({の
   onBack,
   onStartBathing,
   character,
