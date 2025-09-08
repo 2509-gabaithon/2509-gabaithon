@@ -102,7 +102,7 @@ export function ResultScreen({
             </CardContent>
           </Card>
 
-          <Card className="mb-6">
+          <Card className="mb-6 min-h-77">
             <CardHeader>
               <CardTitle className="text-center flex items-center justify-center">
                 <Stamp className="h-5 w-5 mr-2 text-app-base" />
