@@ -76,6 +76,20 @@ export function NewLocationCheckScreen({
       setLocationError(true);
     }
   };
+    // キャラクターの種類に応じて画像を選択
+  const getCharacterImage = () => {
+    switch (character.type) {
+      case "onsen-chan":
+        return beppyonImage;
+      case "yuzu-kun":
+        return yuttsuraImage;
+      case "sakura-san":
+        return kawaiiImage;
+      default:
+        return beppyonImage;
+    }
+  };
+
 
   useEffect(() => {
     getLocation();
@@ -90,6 +104,7 @@ export function NewLocationCheckScreen({
       location: currentPosition,
       radius: 5000, // 5km以内
       keyword: '温泉',
+      // type: 'spa',
     };
     service.nearbySearch(request, (results, status) => {
       if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
@@ -129,7 +144,7 @@ export function NewLocationCheckScreen({
               <Marker
                 position={currentPosition}
                 icon={{
-                  url: kawaiiImage.src,//ここで画像を変更
+                  url: getCharacterImage().src,//ここで画像を変更
                   scaledSize: new window.google.maps.Size(40, 40),
                 }}
               />
