@@ -98,12 +98,17 @@ export default function App() {
     const supabase = await createClient()
 
     //認証のチェック
-    supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: process.env.NEXT_PUBLIC_CALLBACK_URL || 'http://localhost:3000/callback',
-      }
-    })
+    const user = supabase.auth.getUser()
+    if (!user) {
+      supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: process.env.NEXT_PUBLIC_CALLBACK_URL || 'http://localhost:3000/auth/callback',
+        }
+      })
+    } else {
+      console.log('User already signed in:', user)
+    }
 
     if (userData) {
       setCurrentScreen('home');
