@@ -29,6 +29,7 @@ select,
 img {
   -webkit-user-drag: none; /* 画像ドラッグ抑止（Safari系） */
   user-drag: none;
+  pointer-events: none;
 }
 
 /* 4) iOSでフォーカス時の自動ズーム対策（16px未満でズームする仕様） */
