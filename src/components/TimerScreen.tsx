@@ -271,16 +271,6 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
               </div>
               
               <h2 className="text-xl font-bold text-app-base mb-2">{character.name}</h2>
-              <div className="flex justify-center space-x-4 text-sm">
-                <div className="text-center">
-                  <p className="text-app-base-light">レベル</p>
-                  <p className="font-bold text-app-main">{character.level}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-app-base-light">温泉回数</p>
-                  <p className="font-bold text-app-main">{character.onsenCount}</p>
-                </div>
-              </div>
               
               {isRunning && (
                 <div className="mt-4 p-3 bg-white/95 rounded-lg shadow-md border border-white/20">
