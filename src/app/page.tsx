@@ -16,6 +16,7 @@ import { TabType } from '@/components/BottomTabNavigation';
 import mochiusa from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png'
 import ureshinoStamp from '@/assets/23d72f267674d7a86e5a4d3966ba367d52634bd9.png'
 import { createClient } from '@/utils/supabase/client';
+import { insertNyuyokuLog } from '@/utils/supabase/nyuyoku-log';
 import { useRouter } from 'next/navigation';
 import type { accounts, CredentialResponse } from 'google-one-tap'
 import type { User } from '@supabase/supabase-js';
@@ -60,6 +61,17 @@ interface OnsenStamp {
   difficulty: string;
 }
 
+interface OnsenDetail {
+  name: string;
+  place_id: string;
+  geometry: {
+    location: {
+      lat(): number;
+      lng(): number;
+    };
+  };
+}
+
 declare const google: { accounts: accounts }
 
 export default function App() {
@@ -81,8 +93,9 @@ export default function App() {
     stamina: 100,
     onsenCount: 0
   });
-  const [selectedLocation, setSelectedLocation] = useState<any>(null);
+  const [selectedLocation, setSelectedLocation] = useState<OnsenDetail | null>(null);
   const [timerDuration, setTimerDuration] = useState<number>(0);
+  const [timerStartTime, setTimerStartTime] = useState<Date | null>(null);
   const [acquiredStamp, setAcquiredStamp] = useState<{ name: string; icon: string } | null>(null);
   
   const supabase = createClient(); // クライアントを一度だけ作成
@@ -235,12 +248,37 @@ export default function App() {
 
 
 
-  const handleTimerComplete = (timeSpent: number) => {
-    // タイマーの時間を保存してスタンプ獲得画面へ
-    setTimerDuration(timeSpent);
-    // 獲得するスタンプ情報を設定
-    setAcquiredStamp({ name: selectedOnsen || '未選択', icon: ureshinoStamp.src });
-    setCurrentScreen('stampAcquisition');
+  const handleTimerComplete = async (data: { timeSpent: number; startTime: Date; endTime: Date }) => {
+    try {
+      // タイマーの時間を保存してスタンプ獲得画面へ
+      setTimerDuration(data.timeSpent);
+      setTimerStartTime(data.startTime);
+      
+      // nyuyoku_log にデータを保存
+      if (selectedLocation && user) {
+        const logData = {
+          total_ms: data.timeSpent * 60 * 1000, // 分をミリ秒に変換
+          started_at: data.startTime.toISOString(),
+          ended_at: data.endTime.toISOString(),
+          onsen_name: selectedLocation.name,
+          onsen_place_id: selectedLocation.place_id,
+          onsen_lat: selectedLocation.geometry.location.lat(),
+          onsen_lng: selectedLocation.geometry.location.lng()
+        };
+        
+        await insertNyuyokuLog(logData);
+        console.log('入浴ログを保存しました');
+      }
+      
+      // 獲得するスタンプ情報を設定
+      setAcquiredStamp({ name: selectedOnsen || '未選択', icon: ureshinoStamp.src });
+      setCurrentScreen('stampAcquisition');
+    } catch (error) {
+      console.error('入浴ログ保存エラー:', error);
+      // エラーが発生してもスタンプ獲得画面には進む
+      setAcquiredStamp({ name: selectedOnsen || '未選択', icon: ureshinoStamp.src });
+      setCurrentScreen('stampAcquisition');
+    }
   };
 
   const handleStampAcquisitionComplete = () => {
@@ -357,10 +395,11 @@ export default function App() {
       );
       
     case 'locationCheck':
+      // 旧フロー: selectedLocation が OnsenStamp 型の場合
       if (!selectedLocation) return <div>Loading...</div>;
       return (
         <LocationCheckScreen 
-          onsen={selectedLocation}
+          onsen={selectedLocation as any} // 型キャストで一時的に対応
           onBack={() => setCurrentScreen('stampRally')}
           onLocationConfirmed={handleLocationConfirmed}
         />
@@ -370,6 +409,7 @@ export default function App() {
       return (
         <NewLocationCheckScreen 
           setOnsen={setSelectedOnsen}
+          setOnsenDetail={setSelectedLocation}
           character={currentCharacter!}
           onBack={() => setCurrentScreen('home')}
           onStartBathing={handleStartBathing}

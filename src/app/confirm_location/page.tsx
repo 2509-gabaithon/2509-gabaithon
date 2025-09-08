@@ -21,6 +21,7 @@ export default function ConfirmLocation() {
   return (
     <NewLocationCheckScreen
       setOnsen={() => {}}
+      setOnsenDetail={() => {}}
       character={character}
       onBack={handleBack}
       onStartBathing={handleStartBathing}
