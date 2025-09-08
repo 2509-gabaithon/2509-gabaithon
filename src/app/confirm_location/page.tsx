@@ -20,6 +20,7 @@ export default function ConfirmLocation() {
 
   return (
     <NewLocationCheckScreen
+      setOnsen={() => {}}
       character={character}
       onBack={handleBack}
       onStartBathing={handleStartBathing}

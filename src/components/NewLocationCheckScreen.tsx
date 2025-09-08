@@ -3,77 +3,81 @@ import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { ArrowLeft, MapPin, Navigation } from "lucide-react";
 
-import mapImage from "@/assets/1a0f3b4eaaf666c678218990a5f3915504e73d9c.png";
 import beppyonImage from "@/assets/3c6e9e82c814a4dcb5208e61977d5118a50e6a2c.png";
 import yuttsuraImage from "@/assets/cc82c1498637df3406caa6867e011e9f0b8813d7.png";
 import kawaiiImage from "@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png";
+import { GoogleMap, Marker, Circle, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 
 interface NewLocationCheckScreenProps {
   onBack: () => void;
-  onStartBathing: () => void;
+  onStartBathing: () => void;  
+  setOnsen: (name: string) => void;
   character: { name: string; type: string };
 }
 
-// 温泉の位置データ（箱根湯本温泉の座標）
-const HAKONE_YUMOTO_LAT = 35.2322;
-const HAKONE_YUMOTO_LNG = 139.1069;
+// 距離計算関数（ハバーサイン公式）
+const calculateDistance = (
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+) => {
+  const R = 6371000; // 地球の半径（メートル）
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+const GOOGLE_MAP_LIBRARIES = ['places'];
 
-// 現在地のシミュレーション（箱根湯本温泉から500m以内）
-const SIMULATED_USER_LAT = 35.2318; // 少し南
-const SIMULATED_USER_LNG = 139.1065; // 少し西
+// 温泉の範囲
+const MAX_ONSEN_DISTANCE = 150;
 
 export function NewLocationCheckScreen({
   onBack,
   onStartBathing,
+  setOnsen,
   character,
 }: NewLocationCheckScreenProps) {
-  const [userLocation, setUserLocation] = useState<{
-    lat: number;
-    lng: number;
-  } | null>(null);
-  const [isNearOnsen, setIsNearOnsen] = useState(false);
-  const [distance, setDistance] = useState<number>(0);
-
-  // 距離計算関数（ハバーサイン公式）
-  const calculateDistance = (
-    lat1: number,
-    lng1: number,
-    lat2: number,
-    lng2: number
-  ): number => {
-    const R = 6371000; // 地球の半径（メートル）
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLng = ((lng2 - lng1) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLng / 2) *
-      Math.sin(dLng / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+  const containerStyle = {
+    width: '100%',
+    height: '700px',
   };
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!,
+      libraries: GOOGLE_MAP_LIBRARIES as any,
+  });
+  const [currentPosition, setCurrentPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const [onsenLocations, setOnsenLocations] = useState<any[]>([]);
+  const [activeOnsenIdx, setActiveOnsenIdx] = useState<number | null>(null);
+  const [isNearOnsen, setIsNearOnsen] = useState<boolean>(false);
+  const [locationError, setLocationError] = useState<boolean>(false);
 
-  useEffect(() => {
-    // 現在地を取得（シミュレーション）
-    setUserLocation({
-      lat: SIMULATED_USER_LAT,
-      lng: SIMULATED_USER_LNG,
-    });
-
-    // 箱根湯本温泉からの距離を計算
-    const dist = calculateDistance(
-      SIMULATED_USER_LAT,
-      SIMULATED_USER_LNG,
-      HAKONE_YUMOTO_LAT,
-      HAKONE_YUMOTO_LNG
-    );
-
-    setDistance(Math.round(dist));
-    setIsNearOnsen(dist <= 500); // 500m以内なら温泉の近く
-  }, []);
-
-  // キャラクターの種類に応じて画像を選択
+  const getLocation = () => {
+    setLocationError(false);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCurrentPosition({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+          setLocationError(false);
+        },
+        () => {
+          setLocationError(true);
+        }
+      );
+    } else {
+      setLocationError(true);
+    }
+  };
+    // キャラクターの種類に応じて画像を選択
   const getCharacterImage = () => {
     switch (character.type) {
       case "onsen-chan":
@@ -87,70 +91,113 @@ export function NewLocationCheckScreen({
     }
   };
 
+  useEffect(() => {
+    getLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded || !currentPosition) return;
+    const map = new window.google.maps.Map(document.createElement('div'));
+    const service = new window.google.maps.places.PlacesService(map);
+    const request = {
+      location: currentPosition,
+      radius: 5000, // 5km以内
+      // keyword: '温泉',
+      type: 'spa',
+    };
+    service.nearbySearch(request, (results, status) => {
+      if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
+        setOnsenLocations(results);
+        // 取得した温泉情報を全件コンソール出力
+        results.forEach((place: any, idx: number) => {
+          console.log(idx, place.name, place, place.id);
+        });
+        // 最も近い温泉までの距離を計算
+        let minDist = Infinity;
+        results.forEach((place: any) => {
+          const lat = place.geometry.location.lat();
+          const lng = place.geometry.location.lng();
+          const dist = calculateDistance(currentPosition.lat, currentPosition.lng, lat, lng);
+          if (dist < minDist) minDist = dist;
+        });
+        setIsNearOnsen(minDist <= MAX_ONSEN_DISTANCE);
+      } else {
+        setIsNearOnsen(false);
+      }
+    });
+  }, [isLoaded, currentPosition]);
+
   return (
     <div className="h-screen relative overflow-hidden">
-      {/* マップエリア - 画面全体 */}
+      {/* Google Mapエリア */}
       <div className="absolute inset-0">
-        {/* 地図画像背景 */}
-        <img
-          src={mapImage.src}
-          alt="箱根エリア地図"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-        />
-        {/* 地図の上にオーバーレイ */}
-        <div className="absolute inset-0 bg-black/10"></div>
-
-        {/* 温泉の位置 - 箱根湯本温泉の実際の位置付近 */}
-        <div className="absolute top-1/3 left-1/4 transform -translate-x-1/2 -translate-y-1/2">
-          <div className="relative">
-            <div className="w-8 h-8 bg-app-main rounded-full border-3 border-white shadow-xl flex items-center justify-center">
-              <span className="text-sm">♨️</span>
-            </div>
-            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-              <div className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg shadow-md">
-                <span className="text-xs font-bold text-app-base">
-                  箱根湯本温泉
-                </span>
-              </div>
-            </div>
+        {locationError ? (
+          <div className="flex flex-col items-center justify-center h-full">
+            <div className="mb-4 text-red-600 font-bold">現在地を取得できませんでした</div>
+            <Button onClick={getLocation} variant="outline">再取得する</Button>
           </div>
-        </div>
-
-        {/* 現在地（もちもちうさぎ） - 温泉の近くに配置 */}
-        {userLocation && (
-          <div className="absolute top-1/3 left-1/4 transform translate-x-12 translate-y-6">
-            <div className="relative">
-              {/* 位置の円 */}
-              <div className="w-14 h-14 bg-app-accent-2 rounded-full border-3 border-white shadow-xl flex items-center justify-center relative overflow-hidden">
-                <img
-                  src={getCharacterImage().src}
-                  alt="もちもちうさぎ"
-                  className="w-11 h-11 object-contain"
-                />
-              </div>
-
-              {/* 現在地のラベル */}
-              <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-                <div className="bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg shadow-md">
-                  <span className="text-xs font-bold text-app-main">
-                    現在地
-                  </span>
-                </div>
-              </div>
-
-              {/* 近い場合の円 */}
-              {isNearOnsen && (
-                <div className="absolute inset-0 w-14 h-14 border-3 border-app-main rounded-full animate-pulse"></div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* 距離表示の線 */}
-        {isNearOnsen && (
-          <div className="absolute top-1/3 left-1/4 transform -translate-x-1/2 -translate-y-1/2">
-            <div className="w-16 h-16 border-2 border-dashed border-app-main/60 rounded-full opacity-70"></div>
-          </div>
+        ) : isLoaded ? (
+          currentPosition ? (
+            <GoogleMap
+              mapContainerStyle={containerStyle}
+              center={currentPosition}
+              zoom={18}
+            >
+              {/* ...existing code... */}
+              <Marker
+                position={currentPosition}
+                icon={{
+                  url: getCharacterImage().src,//ここで画像を変更
+                  scaledSize: new window.google.maps.Size(40, 40),
+                }}
+              />
+              <Circle
+                center={currentPosition}
+                radius={MAX_ONSEN_DISTANCE}
+                options={{
+                  strokeColor: '#4285F4',
+                  strokeOpacity: 0.8,
+                  strokeWeight: 2,
+                  fillColor: '#4285F4',
+                  fillOpacity: 0.2,
+                }}
+              />
+              {onsenLocations.map((place, idx) => (
+                <React.Fragment key={idx}>
+                  <Marker
+                    position={{
+                      lat: place.geometry.location.lat(),
+                      lng: place.geometry.location.lng(),
+                    }}
+                    icon={{
+                      url: '/spa.png',
+                      scaledSize: new window.google.maps.Size(40, 40),
+                    }}
+                    onClick={() => {
+                      setActiveOnsenIdx(idx);
+                      setOnsen(onsenLocations[idx].name);
+                    }}
+                  />
+                  {activeOnsenIdx === idx && (
+                    <InfoWindow
+                      position={{
+                        lat: place.geometry.location.lat(),
+                        lng: place.geometry.location.lng(),
+                      }}
+                      onCloseClick={() => setActiveOnsenIdx(null)}
+                    >
+                      <div>{place.name}</div>
+                    </InfoWindow>
+                  )}
+                </React.Fragment>
+              ))}
+            </GoogleMap>
+          ) : (
+            <div>現在地を取得中...</div>
+          )
+        ) : (
+          <div>Loading...</div>
         )}
       </div>
 
@@ -169,8 +216,27 @@ export function NewLocationCheckScreen({
             <div className="flex items-center">
               <Navigation className="h-5 w-5 text-app-main mr-2" />
               <div>
-                <p className="font-medium">箱根湯本温泉</p>
-                <p className="text-sm text-app-base-light">距離: {distance}m</p>
+                <p className="font-medium">
+                  {activeOnsenIdx !== null && onsenLocations[activeOnsenIdx]
+                  ? onsenLocations[activeOnsenIdx].name
+                  : onsenLocations.length > 0
+                    ? onsenLocations[0].name
+                    : '[未選択]'}
+                </p>
+                <p className="text-sm text-app-base-light">
+                  距離: {
+                    activeOnsenIdx !== null && onsenLocations[activeOnsenIdx]
+                      ? Math.round(
+                          calculateDistance(
+                            currentPosition?.lat ?? 0,
+                            currentPosition?.lng ?? 0,
+                            onsenLocations[activeOnsenIdx].geometry.location.lat(),
+                            onsenLocations[activeOnsenIdx].geometry.location.lng()
+                          )
+                        )
+                      : 0
+                  }m
+                </p>
               </div>
             </div>
             <div
@@ -193,12 +259,14 @@ export function NewLocationCheckScreen({
               <MapPin className="mr-2 text-[#F8447E]" /> 位置確認
             </h3>
             <div className="space-y-1 text-sm text-app-base-light">
-              <p>• 温泉から50m以内で入浴可能</p>
+              <p>• 温泉から{MAX_ONSEN_DISTANCE}m以内で入浴可能</p>
               <p>
                 •{" "}
-                {isNearOnsen
-                  ? `${character.name}が温泉を見つけました！`
-                  : "もう少し温泉に近づいてください"}
+                {activeOnsenIdx !== null && onsenLocations[activeOnsenIdx]
+                  ? `選択中: ${onsenLocations[activeOnsenIdx].name}`
+                  : isNearOnsen
+                    ? `${character.name}が温泉を見つけました！`
+                    : "もう少し温泉に近づいてください"}
               </p>
             </div>
           </div>
@@ -207,14 +275,32 @@ export function NewLocationCheckScreen({
 
       {/* 入浴ボタン - オーバーレイ */}
       <div className="absolute bottom-38 left-4 right-4 z-20">
-        <Button
-          size="lg"
-          className="w-full"
-          onClick={onStartBathing}
-          disabled={!isNearOnsen}
-        >
-          {isNearOnsen ? "入浴する！" : "温泉の近くではありません"}
-        </Button>
+        {activeOnsenIdx !== null && onsenLocations[activeOnsenIdx] ? (
+          (() => {
+            const selectedOnsen = onsenLocations[activeOnsenIdx];
+            const distance = calculateDistance(
+              currentPosition?.lat ?? 0,
+              currentPosition?.lng ?? 0,
+              selectedOnsen.geometry.location.lat(),
+              selectedOnsen.geometry.location.lng()
+            );
+            const canBath = distance <= MAX_ONSEN_DISTANCE;
+            return (
+              <Button
+                size="lg"
+                className="w-full"
+                onClick={onStartBathing}
+                disabled={!canBath}
+              >
+                {canBath ? "入浴する！" : "温泉の近くではありません"}
+              </Button>
+            );
+          })()
+        ) : (
+          <Button size="lg" className="w-full" disabled>
+            温泉が選択されていません
+          </Button>
+        )}
       </div>
     </div>
   );
