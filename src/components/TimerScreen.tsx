@@ -18,7 +18,7 @@ interface Character {
 
 interface TimerScreenProps {
   character: Character;
-  onComplete: (timeSpent: number) => void;
+  onComplete: (data: { timeSpent: number; startTime: Date; endTime: Date }) => void;
   onCancel: () => void;
 }
 
@@ -85,10 +85,15 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
 
   const handleExitConfirm = () => {
     // タイマー停止して完了画面へ
+    const endTime = new Date();
     setIsRunning(false);
     setShowExitModal(false);
     const timeSpentMinutes = Math.floor(timeElapsed / 60);
-    onComplete(timeSpentMinutes);
+    onComplete({
+      timeSpent: timeSpentMinutes,
+      startTime: timeStart,
+      endTime: endTime
+    });
   };
 
   const handleExitCancel = () => {
