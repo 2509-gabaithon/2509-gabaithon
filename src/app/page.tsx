@@ -70,6 +70,7 @@ export default function App() {
   const [authLoading, setAuthLoading] = useState(true); // 認証状態のローディング
   const [tempUserName, setTempUserName] = useState<string>('');
   const [characterName, setCharacterName] = useState<string>('');
+  const [selectedOnsen, setSelectedOnsen] = useState<string>('');
   const [currentCharacter, setCurrentCharacter] = useState<Character>({
     name: '',
     type: 'sakura-san',
@@ -238,7 +239,7 @@ export default function App() {
     // タイマーの時間を保存してスタンプ獲得画面へ
     setTimerDuration(timeSpent);
     // 獲得するスタンプ情報を設定
-    setAcquiredStamp({ name: '箱根湯本温泉', icon: ureshinoStamp.src });
+    setAcquiredStamp({ name: selectedOnsen || '未選択', icon: ureshinoStamp.src });
     setCurrentScreen('stampAcquisition');
   };
 
@@ -368,6 +369,7 @@ export default function App() {
     case 'newLocationCheck':
       return (
         <NewLocationCheckScreen 
+          setOnsen={setSelectedOnsen}
           character={currentCharacter!}
           onBack={() => setCurrentScreen('home')}
           onStartBathing={handleStartBathing}
