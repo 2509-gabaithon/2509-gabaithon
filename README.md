@@ -22,10 +22,4 @@
    - アプリが使用する DB をこれにしたい場合、`.env` ファイルの中身を書き換えてください
 
 memo
-```
-supabase db dump --local -f supabase/schema.sql
-supabase gen types typescript --local > src/types/supabase.ts
-supabase db dump -f supabase/seed.sql --data-only --local
-supabase db pull --local
-supabase db push
-```
+https://zenn.dev/lef237/articles/5a1a7ef372cdb8
