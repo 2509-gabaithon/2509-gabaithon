@@ -8,6 +8,7 @@ export interface UserAccessary {
   user_id: string;
   accessary_id: number;
   created_at: string;
+  equipped?: boolean; // 装備状態
   accessary?: Accessary;
 }
 

@@ -1,68 +1,71 @@
-# クエストクリア時ランダムアクセサリ付与機能 実装計画
+# パートナー表示にアクセサリを含める機能 実装計画
 
 ## 調査結果
 
-### 現在のコードベース構造
+### 現在のパートナー表示箇所
 
-1. **データベーススキーマ**:
-   - `accessary` テーブル: アクセサリのマスタデータ（id, name）
-   - `user_accessary` テーブル: ユーザーが所有するアクセサリ（user_id, accessary_id, created_at）
-   - `quest_submission` テーブル: クエスト完了記録（user_id, quest_id, created_at）
+1. **CharacterScreen.tsx**: メインのキャラクター画面
+   - `getCharacterImage()` でキャラクター種類別の画像選択
+   - `kawaiiImage` をベース画像として使用
 
-2. **既存のクエスト完了機能**:
-   - `src/utils/supabase/quest.ts` の `checkAndCompleteQuests` 関数
-   - 温泉での入浴時にクエスト対象かチェックし、完了記録を保存
-   - クエスト完了通知機能が既に実装済み
+2. **HomeScreen.tsx**: ホーム画面のキャラクター表示
+   - 同様に `getCharacterImage()` を使用
 
-3. **アクセサリ関連の現状**:
-   - データベースにaccessaryテーブルとuser_accessaryテーブルが存在
-   - フロントエンドでは `CharacterDecoScreen` にmockデータとして装備システムを実装済み
-   - アクセサリのSupabase操作関数は未実装
+3. **ResultScreen.tsx**: 入浴結果画面のキャラクター表示
+   - 同様に `getCharacterImage()` を使用
 
-### 関連ファイル
+4. **CharacterDecoScreen.tsx**: デコレーション画面
+   - `kawaiiImage` を直接使用
 
-- `/supabase/schema.sql` - データベース構造
-- `/src/utils/supabase/quest.ts` - クエスト関連操作
-- `/src/types/supabase.ts` - 型定義
-- `/src/components/CharacterDecoScreen.tsx` - アクセサリ表示UI
-- `/src/app/page.tsx` - クエスト完了通知機能
+5. **各種設定画面**: キャラクター選択・命名画面等
+   - 初期設定時なのでアクセサリ表示は不要
+
+### アクセサリ画像リソース
+
+- `public/accessaries/0.png`: デフォルト画像（アクセサリなし/エラー時）
+- `public/accessaries/1.png`, `2.png`, `4.png`: アクセサリ画像
 
 ## 実装要件
 
 ### 必要最小限の機能
 
-1. **アクセサリマスタデータの準備**
-   - `accessary` テーブルにアクセサリデータを挿入するマイグレーション
+1. **装備中アクセサリ取得機能**
+   - ユーザーが装備中のアクセサリIDを取得
+   - データベースから装備状態を管理する仕組み
 
-2. **アクセサリ操作関数の実装**
-   - ランダムアクセサリ選択機能
-   - ユーザーアクセサリ付与機能
-   - 重複チェック機能
+2. **合成画像表示コンポーネント**
+   - ベースキャラクター画像 + アクセサリ画像の重ね合わせ表示
+   - アクセサリなし/エラー時は `0.png` を表示
 
-3. **クエスト完了処理の拡張**
-   - `checkAndCompleteQuests` 関数にアクセサリ付与ロジックを追加
-   - クエスト完了通知にアクセサリ獲得情報を含める
+3. **既存キャラクター表示箇所の置き換え**
+   - `getCharacterImage()` の代わりに新しいコンポーネントを使用
 
 ### 実装対象ファイル
 
-- `supabase/migrations/` - 新しいマイグレーションファイル
-- `src/utils/supabase/accessary.ts` - 新規作成（アクセサリ操作）
-- `src/utils/supabase/quest.ts` - 修正（アクセサリ付与機能追加）
-- `src/types/` - アクセサリ型定義追加
-- `src/components/QuestCompletionNotification.tsx` - アクセサリ獲得通知追加
+- `src/components/CharacterWithAccessory.tsx` - 新規作成（合成表示コンポーネント）
+- `src/utils/supabase/accessary.ts` - 装備中アクセサリ取得機能追加
+- `src/components/CharacterScreen.tsx` - キャラクター表示を新コンポーネントに置き換え
+- `src/components/HomeScreen.tsx` - 同上
+- `src/components/ResultScreen.tsx` - 同上
+- `src/components/CharacterDecoScreen.tsx` - 同上
 
 ### 実装順序
 
-1. アクセサリマスタデータのマイグレーション作成
-2. アクセサリ操作用のユーティリティ関数実装
-3. クエスト完了処理にアクセサリ付与機能を統合
-4. 通知UIにアクセサリ獲得表示を追加
+1. 装備状態管理用のDB操作関数追加
+2. キャラクター+アクセサリ合成表示コンポーネント作成
+3. 各画面のキャラクター表示を新コンポーネントに置き換え
+
+### 技術仕様
+
+- **装備管理**: user_accessaryテーブルに装備フラグを追加するか、別途装備管理テーブルを作成
+- **画像合成**: CSS position:absolute での重ね合わせ表示
+- **フォールバック**: アクセサリ取得失敗時は `0.png`、画像読み込み失敗時も `0.png`
 
 ### 制約事項
 
-- 同じアクセサリの重複付与は避ける
-- クエスト完了時のみアクセサリを付与（今回は入浴とは独立）
-- ランダム性は単純な配列からのランダム選択で実装
+- 同時装備は1つのアクセサリのみ（簡単化のため）
+- アクセサリ画像は事前に適切なサイズ・位置で作成済みと仮定
+- 初期設定画面では既存の表示を維持（アクセサリ装備前のため）
 1. `src/types/supabase.ts`の確認・更新（必要に応じて）
 
 ### Phase 3: フロントエンド連携

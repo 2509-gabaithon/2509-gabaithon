@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
 import { Star, Stamp, ArrowUp } from "lucide-react";
+import { CharacterWithAccessory } from './CharacterWithAccessory';
 import noiseTexture from "@/assets/221bcc06007de28e2dedf86e88d0a2798eac78e7.png";
 import beppyonImage from "@/assets/3c6e9e82c814a4dcb5208e61977d5118a50e6a2c.png";
 import yuttsuraImage from "@/assets/cc82c1498637df3406caa6867e011e9f0b8813d7.png";
@@ -67,11 +68,13 @@ export function ResultScreen({
           <Card className="mb-6">
             <CardContent className="pt-6">
               <div className="text-center">
-                <img
-                  src={getCharacterImage().src}
-                  alt={character.name}
-                  className="w-24 h-24 mx-auto object-contain mb-4"
-                />
+                <div className="mx-auto mb-4">
+                  <CharacterWithAccessory
+                    character={character}
+                    size="md"
+                    className="mx-auto"
+                  />
+                </div>
                 <h3 className="text-xl font-bold mb-6">{character.name}</h3>
 
                 {/* 獲得経験値プログレスバー */}

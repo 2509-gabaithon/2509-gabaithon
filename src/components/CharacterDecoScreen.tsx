@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
+import { CharacterWithAccessory } from './CharacterWithAccessory';
 import kawaiiImage from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import { BottomTabNavigation, TabType } from './BottomTabNavigation';
@@ -115,11 +116,11 @@ export function CharacterDecoScreen({ onBack, character, onTabChange }: Characte
         <Card className="mb-6 bg-white/95 backdrop-blur-sm border-white/20">
           <CardContent className="pt-6">
             <div className="text-center">
-              <div className="relative w-32 h-32 mx-auto mb-4">
-                <img
-                  src={kawaiiImage.src}
-                  alt={character.name}
-                  className="w-full h-full object-contain"
+              <div className="mx-auto mb-4">
+                <CharacterWithAccessory
+                  character={character}
+                  size="lg"
+                  className="mx-auto"
                 />
               </div>
               <h3 className="font-bold text-app-base">{character.name}</h3>
