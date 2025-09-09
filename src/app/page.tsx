@@ -23,6 +23,7 @@ import { QuestCompletionNotification } from '@/components/QuestCompletionNotific
 import { useRouter } from 'next/navigation';
 import type { accounts, CredentialResponse } from 'google-one-tap'
 import type { User } from '@supabase/supabase-js';
+import { updateUserProfile } from '@/utils/supabase/profile';
 
 type ScreenType = 
   | 'title'
@@ -265,8 +266,8 @@ export default function App() {
       console.error('Failed to update character name:', error);
     }
     
-    // ローカルストレージに保存
-    localStorage.setItem('onsenAppUser', JSON.stringify(newUserData));
+    // DBにユーザープロフィールを保存
+    updateUserProfile({id: user?.id!, name: newUserData.name})
     
     setCurrentScreen('home');
   };
