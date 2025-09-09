@@ -107,7 +107,7 @@ export function HomeScreen({
         <div className="space-y-3">
           <Button size="lg" className="w-full" onClick={onNavigateToStampRally}>
             <Map />
-            スタンプラリーを見る
+            湯けむりクエストを確認する
           </Button>
 
           <Button
