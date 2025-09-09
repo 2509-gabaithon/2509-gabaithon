@@ -18,6 +18,7 @@ import ureshinoStamp from '@/assets/23d72f267674d7a86e5a4d3966ba367d52634bd9.png
 import { createClient } from '@/utils/supabase/client';
 import { insertNyuyokuLog, NyuyokuLogResult } from '@/utils/supabase/nyuyoku-log';
 import { QuestCompletionResult } from '@/utils/supabase/quest';
+import { getUserPartner, calculateLevel, getExpToNextLevel } from '@/utils/supabase/user-partner';
 import { QuestCompletionNotification } from '@/components/QuestCompletionNotification';
 import { useRouter } from 'next/navigation';
 import type { accounts, CredentialResponse } from 'google-one-tap'
@@ -121,6 +122,8 @@ export default function App() {
           if (session?.user) {
             setUser(session.user);
             console.log('Initial session found:', session.user);
+            // ユーザー認証後にキャラクター情報を取得
+            await loadUserPartnerData();
           } else {
             setUser(null);
             console.log('No initial session');
@@ -137,12 +140,14 @@ export default function App() {
 
     // 認証状態変更の監視
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('Auth state change:', event, session?.user?.id);
         if (mounted) {
           if (session?.user) {
             setUser(session.user);
             setAuthLoading(false);
+            // ユーザー認証後にキャラクター情報を取得
+            await loadUserPartnerData();
           } else {
             setUser(null);
             setAuthLoading(false);
@@ -158,6 +163,33 @@ export default function App() {
       subscription.unsubscribe();
     };
   }, []);
+
+  // user_partnerからキャラクター情報を読み込む
+  const loadUserPartnerData = async () => {
+    try {
+      const userPartner = await getUserPartner();
+      if (userPartner) {
+        const level = calculateLevel(userPartner.exp);
+        const nextLevelExp = Math.pow(level, 2) * 100; // 次のレベルに必要な総経験値
+        const maxExp = nextLevelExp;
+
+        setCurrentCharacter({
+          name: userPartner.name || 'もちもちうさぎ',
+          type: 'sakura-san',
+          level: level,
+          exp: userPartner.exp,
+          maxExp: maxExp,
+          happiness: userPartner.happiness,
+          stamina: 100, // スタミナはuser_partnerテーブルにないので固定値
+          onsenCount: 0 // 温泉カウントは別途計算が必要
+        });
+        
+        console.log('User partner data loaded:', userPartner);
+      }
+    } catch (error) {
+      console.warn('Failed to load user partner data:', error);
+    }
+  };
 
   const handleStart = async () => {
     // 認証状態がまだ読み込み中の場合は待機
@@ -210,7 +242,7 @@ export default function App() {
     setCharacterName(name);
   };
 
-  const handleCharacterSelect = () => {
+  const handleCharacterSelect = async () => {
     if (!characterName.trim()) return;
     
     const newUserData: UserData = {
@@ -218,20 +250,21 @@ export default function App() {
       characterType: 'sakura-san',
       isFirstTime: true
     };
-    
-    const newCharacter: Character = {
-      name: characterName.trim(),
-      type: 'sakura-san',
-      level: 1,
-      exp: 0,
-      maxExp: 100,
-      happiness: 80,
-      stamina: 100,
-      onsenCount: 0
-    };
 
     setUserData(newUserData);
-    setCurrentCharacter(newCharacter);
+    
+    try {
+      // user_partnerのキャラクター名を更新
+      const { updateUserPartner } = await import('@/utils/supabase/user-partner');
+      await updateUserPartner({ name: characterName.trim() });
+      
+      // 更新後のデータを再読み込み
+      await loadUserPartnerData();
+      
+      console.log('Character name updated:', characterName.trim());
+    } catch (error) {
+      console.error('Failed to update character name:', error);
+    }
     
     // DBにユーザープロフィールを保存
     updateUserProfile({id: user?.id!, name: newUserData.name})
@@ -303,28 +336,9 @@ export default function App() {
     setCurrentScreen('stampRally');
   };
 
-  const handleStampAcquisitionComplete = () => {
-    // キャラクターの経験値とステータスを更新
-    if (currentCharacter) {
-      const expGained = Math.floor(timerDuration * 2); // 1分につき2EXP
-      const newExp = currentCharacter.exp + expGained;
-      const levelUp = newExp >= currentCharacter.maxExp;
-      const newLevel = levelUp ? currentCharacter.level + 1 : currentCharacter.level;
-      const remainingExp = levelUp ? newExp - currentCharacter.maxExp : newExp;
-      
-      const updatedCharacter: Character = {
-        ...currentCharacter,
-        exp: remainingExp,
-        level: newLevel,
-        maxExp: newLevel * 100, // レベルに応じて必要経験値増加
-        happiness: Math.min(100, currentCharacter.happiness + 10),
-        stamina: Math.min(100, currentCharacter.stamina + 15),
-        onsenCount: currentCharacter.onsenCount + 1
-      };
-
-      setCurrentCharacter(updatedCharacter);
-      localStorage.setItem('onsenAppCharacter', JSON.stringify(updatedCharacter));
-    }
+  const handleStampAcquisitionComplete = async () => {
+    // 入浴記録保存後、DBトリガーで自動更新されたuser_partnerデータを再読み込み
+    await loadUserPartnerData();
     
     setCurrentScreen('result');
   };

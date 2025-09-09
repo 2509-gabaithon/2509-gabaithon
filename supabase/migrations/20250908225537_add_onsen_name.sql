@@ -1,1 +1,0 @@
-alter table "public"."nyuyoku_log" add column "onsen_name" text not null;

@@ -4,9 +4,9 @@ import "./globals.css";
 import { Kosugi_Maru } from "next/font/google"; // 追加
 
 const kosugi = Kosugi_Maru({
-  weight: "400", 
-  subsets: ["latin"], 
-  variable: "--font-kosugi-maru", 
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-kosugi-maru",
 });
 
 export const metadata: Metadata = {
@@ -22,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="preload" href="/ac98676411915df3391ad15ed92a3dbb57c0f66a.png" as="image" fetchPriority="high" />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
