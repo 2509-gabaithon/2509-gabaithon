@@ -2,6 +2,7 @@ import { createClient } from './client'
 import { checkAndCompleteQuests, QuestCompletionResult } from './quest'
 
 export interface NyuyokuLogData {
+  id?: number;        // Auto-increment PK (optional for insert)
   user_id: string;
   total_ms: number;
   started_at: string; // ISO 8601 format
@@ -10,14 +11,15 @@ export interface NyuyokuLogData {
   onsen_place_id: string;
   onsen_lat: number;
   onsen_lng: number;
+  created_at?: string; // Optional, auto-generated
 }
 
 export interface NyuyokuLogResult {
-  logData: any;
+  logData: NyuyokuLogData | null;
   questCompletions: QuestCompletionResult[];
 }
 
-export async function insertNyuyokuLog(logData: Omit<NyuyokuLogData, 'user_id'>): Promise<NyuyokuLogResult> {
+export async function insertNyuyokuLog(logData: Omit<NyuyokuLogData, 'id' | 'user_id' | 'created_at'>): Promise<NyuyokuLogResult> {
   const supabase = createClient()
   
   // 認証されたユーザーを取得
@@ -38,7 +40,8 @@ export async function insertNyuyokuLog(logData: Omit<NyuyokuLogData, 'user_id'>)
       user_id: user.id,
       ...logData
     })
-    .select()
+    .select('id, user_id, total_ms, started_at, ended_at, onsen_name, onsen_place_id, onsen_lat, onsen_lng, created_at')
+    .single();
 
   if (error) {
     throw new Error(`入浴ログ保存エラー: ${error.message}`)
