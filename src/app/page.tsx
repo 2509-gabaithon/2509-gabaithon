@@ -245,7 +245,7 @@ export default function App() {
     console.log(data);
     let currentLevel = calculateLevel(data[0].exp);
     const newCharacter: Character = {
-      name: characterName.trim(),
+      name: data[0].name,
       type: data[0].name ?? 'sakura-san',
       level: currentLevel,
       exp: calculateExpAtNowLevel(currentLevel, data[0].exp),
