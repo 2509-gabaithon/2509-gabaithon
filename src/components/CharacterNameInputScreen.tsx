@@ -80,7 +80,7 @@ export function CharacterNameInputScreen({
             />
             {/* 説明テキストだけ白枠で囲む */}
             <p className="text-xl font-bold text-white mb-12 opacity-90">
-              {character.description || "ここにパートナーの説明が入る"}
+              {character.description}
             </p>
           </div>
 

@@ -380,7 +380,7 @@ export default function App() {
         return (
           <CharacterNameInputScreen 
             userName={tempUserName}
-            character={{...currentCharacter!, id: currentCharacter!.type, description: 'ここにパートナーの説明が入る', image: mochiusa}}
+            character={{...currentCharacter!, id: currentCharacter!.type, description: 'あなたの温泉パートナー', image: mochiusa}}
             onBack={() => setCurrentScreen('nameInput')}
             onCharacterNameChange={handleCharacterNameChange}
             onComplete={handleCharacterSelect}
