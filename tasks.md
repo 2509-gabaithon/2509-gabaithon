@@ -1,53 +1,68 @@
-# タスク計画: user_partner 経験値・幸福度更新システム
+# クエストクリア時ランダムアクセサリ付与機能 実装計画
 
-## 概要
-温泉入浴（nyuyoku_log）が記録された際に、user_partnerテーブルの経験値と幸福度を自動的に更新する機能を実装する
+## 調査結果
 
-## 現在のスキーマ分析
+### 現在のコードベース構造
 
-### 関連テーブル
-- `user_partner`: ユーザーのキャラクター情報
-  - `exp`: 経験値（bigint, default 0）
-  - `happiness`: 幸福度（integer, default 75）
-  - `user_id`: ユーザーID（外部キー）
+1. **データベーススキーマ**:
+   - `accessary` テーブル: アクセサリのマスタデータ（id, name）
+   - `user_accessary` テーブル: ユーザーが所有するアクセサリ（user_id, accessary_id, created_at）
+   - `quest_submission` テーブル: クエスト完了記録（user_id, quest_id, created_at）
 
-- `nyuyoku_log`: 温泉入浴記録
-  - `user_id`: ユーザーID（主キー）
-  - `total_ms`: 入浴時間（ミリ秒）
-  - `started_at`, `ended_at`: 入浴開始・終了時刻
+2. **既存のクエスト完了機能**:
+   - `src/utils/supabase/quest.ts` の `checkAndCompleteQuests` 関数
+   - 温泉での入浴時にクエスト対象かチェックし、完了記録を保存
+   - クエスト完了通知機能が既に実装済み
 
-## 要件
-1. 温泉入浴時に経験値を新しい経験値計算方法で更新
-2. 幸福度を+25する（最大値は100）
+3. **アクセサリ関連の現状**:
+   - データベースにaccessaryテーブルとuser_accessaryテーブルが存在
+   - フロントエンドでは `CharacterDecoScreen` にmockデータとして装備システムを実装済み
+   - アクセサリのSupabase操作関数は未実装
 
-## 実装方針
+### 関連ファイル
 
-### 1. 経験値計算ロジックの決定
-- 入浴時間に基づく経験値計算（例：入浴時間（分）× 10）
-- または固定値での増加
+- `/supabase/schema.sql` - データベース構造
+- `/src/utils/supabase/quest.ts` - クエスト関連操作
+- `/src/types/supabase.ts` - 型定義
+- `/src/components/CharacterDecoScreen.tsx` - アクセサリ表示UI
+- `/src/app/page.tsx` - クエスト完了通知機能
 
-### 2. 実装方法の選択
-#### オプション A: データベーストリガー
-- `nyuyoku_log`への INSERT 時に自動実行
-- PostgreSQL 関数として実装
+## 実装要件
 
-#### オプション B: アプリケーションレベル
-- 入浴記録保存時にSupabaseクライアントで更新
-- TypeScript/JavaScript で実装
+### 必要最小限の機能
 
-### 3. 必要なファイル
-- `supabase/migrations/`: 新しいマイグレーションファイル
-- `src/utils/supabase/nyuyoku-log.ts`: 入浴記録関連の処理
-- `src/utils/supabase/user-partner.ts`: キャラクター更新処理（新規作成予定）
+1. **アクセサリマスタデータの準備**
+   - `accessary` テーブルにアクセサリデータを挿入するマイグレーション
 
-## 実装タスク
+2. **アクセサリ操作関数の実装**
+   - ランダムアクセサリ選択機能
+   - ユーザーアクセサリ付与機能
+   - 重複チェック機能
 
-### Phase 1: データベース層
-1. 経験値・幸福度更新のためのPostgreSQL関数を作成
-2. nyuyoku_log INSERT時のトリガー作成
-3. マイグレーションファイル作成・適用
+3. **クエスト完了処理の拡張**
+   - `checkAndCompleteQuests` 関数にアクセサリ付与ロジックを追加
+   - クエスト完了通知にアクセサリ獲得情報を含める
 
-### Phase 2: TypeScript型定義更新
+### 実装対象ファイル
+
+- `supabase/migrations/` - 新しいマイグレーションファイル
+- `src/utils/supabase/accessary.ts` - 新規作成（アクセサリ操作）
+- `src/utils/supabase/quest.ts` - 修正（アクセサリ付与機能追加）
+- `src/types/` - アクセサリ型定義追加
+- `src/components/QuestCompletionNotification.tsx` - アクセサリ獲得通知追加
+
+### 実装順序
+
+1. アクセサリマスタデータのマイグレーション作成
+2. アクセサリ操作用のユーティリティ関数実装
+3. クエスト完了処理にアクセサリ付与機能を統合
+4. 通知UIにアクセサリ獲得表示を追加
+
+### 制約事項
+
+- 同じアクセサリの重複付与は避ける
+- クエスト完了時のみアクセサリを付与（今回は入浴とは独立）
+- ランダム性は単純な配列からのランダム選択で実装
 1. `src/types/supabase.ts`の確認・更新（必要に応じて）
 
 ### Phase 3: フロントエンド連携

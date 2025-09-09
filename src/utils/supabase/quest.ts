@@ -1,4 +1,6 @@
 import { createClient } from './client';
+import { grantRandomAccessary } from './accessary';
+import { AccessaryGrantResult } from '@/types/accessary';
 
 // Quest型定義（DBスキーマに合わせて調整）
 export interface Quest {
@@ -36,6 +38,7 @@ export interface QuestCompletionResult {
   questId: number;
   questName: string;
   wasAlreadyCompleted: boolean;
+  accessaryReward?: AccessaryGrantResult; // アクセサリ報酬情報を追加
 }
 
 /**
@@ -136,6 +139,7 @@ export async function checkAndCompleteQuests(place_id: string): Promise<QuestCom
       }
 
       const wasAlreadyCompleted = !!existingSubmission;
+      let accessaryReward: AccessaryGrantResult | undefined;
 
       if (!wasAlreadyCompleted) {
         console.log('💾 新規達成記録を保存:', { questId, userId: user.id });
@@ -160,6 +164,16 @@ export async function checkAndCompleteQuests(place_id: string): Promise<QuestCom
           continue;
         } else {
           console.log('✅ クエスト達成記録成功:', { questId, questName });
+          
+          // 🎁 新規達成時にランダムアクセサリを付与
+          try {
+            console.log('🎁 ランダムアクセサリ付与を開始:', { questId, questName });
+            accessaryReward = await grantRandomAccessary();
+            console.log('✅ アクセサリ付与完了:', accessaryReward);
+          } catch (accessaryError) {
+            console.error('❌ アクセサリ付与エラー:', accessaryError);
+            // アクセサリ付与に失敗してもクエスト達成は継続
+          }
         }
       } else {
         console.log('ℹ️ 既に達成済み:', { questId, questName });
@@ -168,7 +182,8 @@ export async function checkAndCompleteQuests(place_id: string): Promise<QuestCom
       results.push({
         questId,
         questName,
-        wasAlreadyCompleted
+        wasAlreadyCompleted,
+        accessaryReward
       });
     }
 
