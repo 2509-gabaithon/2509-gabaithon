@@ -6,7 +6,13 @@ import { ArrowLeft, MapPin, Navigation } from "lucide-react";
 import beppyonImage from "@/assets/3c6e9e82c814a4dcb5208e61977d5118a50e6a2c.png";
 import yuttsuraImage from "@/assets/cc82c1498637df3406caa6867e011e9f0b8813d7.png";
 import kawaiiImage from "@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png";
-import { GoogleMap, Marker, Circle, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
+import {
+  GoogleMap,
+  Marker,
+  Circle,
+  InfoWindow,
+  useJsApiLoader,
+} from "@react-google-maps/api";
 
 interface OnsenDetail {
   name: string;
@@ -21,7 +27,7 @@ interface OnsenDetail {
 
 interface NewLocationCheckScreenProps {
   onBack: () => void;
-  onStartBathing: () => void;  
+  onStartBathing: () => void;
   setOnsen: (name: string) => void;
   setOnsenDetail: (onsen: OnsenDetail | null) => void;
   character: { name: string; type: string };
@@ -41,11 +47,12 @@ const calculateDistance = (
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos((lat1 * Math.PI) / 180) *
     Math.cos((lat2 * Math.PI) / 180) *
-    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    Math.sin(dLng / 2) *
+    Math.sin(dLng / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 };
-const GOOGLE_MAP_LIBRARIES = ['places'];
+const GOOGLE_MAP_LIBRARIES = ["places"];
 
 // 温泉の範囲
 const MAX_ONSEN_DISTANCE = 150;
@@ -58,18 +65,36 @@ export function NewLocationCheckScreen({
   character,
 }: NewLocationCheckScreenProps) {
   const containerStyle = {
-    width: '100%',
-    height: '700px',
+    width: "100%",
+    height: "700px",
   };
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!,
-      libraries: GOOGLE_MAP_LIBRARIES as any,
+    libraries: GOOGLE_MAP_LIBRARIES as any,
   });
-  const [currentPosition, setCurrentPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const [currentPosition, setCurrentPosition] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
   const [onsenLocations, setOnsenLocations] = useState<any[]>([]);
   const [activeOnsenIdx, setActiveOnsenIdx] = useState<number | null>(null);
   const [isNearOnsen, setIsNearOnsen] = useState<boolean>(false);
   const [locationError, setLocationError] = useState<boolean>(false);
+
+  // ガイド表示制御
+  const [showGuide, setShowGuide] = useState(false);
+
+  // 2秒後にガイド表示開始
+  useEffect(() => {
+    if (activeOnsenIdx === null) {
+      const timer = setTimeout(() => {
+        setShowGuide(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowGuide(false);
+    }
+  }, [activeOnsenIdx]);
 
   const getLocation = () => {
     setLocationError(false);
@@ -90,7 +115,7 @@ export function NewLocationCheckScreen({
       setLocationError(true);
     }
   };
-    // キャラクターの種類に応じて画像を選択
+  // キャラクターの種類に応じて画像を選択
   const getCharacterImage = () => {
     switch (character.type) {
       case "onsen-chan":
@@ -111,23 +136,31 @@ export function NewLocationCheckScreen({
 
   useEffect(() => {
     if (!isLoaded || !currentPosition) return;
-    const map = new window.google.maps.Map(document.createElement('div'));
+    const map = new window.google.maps.Map(document.createElement("div"));
     const service = new window.google.maps.places.PlacesService(map);
     const request = {
       location: currentPosition,
       radius: 5000, // 5km以内
-      keyword: '温泉',
+      keyword: "温泉",
       // type: 'spa',
     };
     service.nearbySearch(request, (results, status) => {
-      if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
+      if (
+        status === window.google.maps.places.PlacesServiceStatus.OK &&
+        results
+      ) {
         setOnsenLocations(results);
         // 最も近い温泉までの距離を計算
         let minDist = Infinity;
         results.forEach((place: any) => {
           const lat = place.geometry.location.lat();
           const lng = place.geometry.location.lng();
-          const dist = calculateDistance(currentPosition.lat, currentPosition.lng, lat, lng);
+          const dist = calculateDistance(
+            currentPosition.lat,
+            currentPosition.lng,
+            lat,
+            lng
+          );
           if (dist < minDist) minDist = dist;
         });
         setIsNearOnsen(minDist <= MAX_ONSEN_DISTANCE);
@@ -143,8 +176,12 @@ export function NewLocationCheckScreen({
       <div className="absolute inset-0">
         {locationError ? (
           <div className="flex flex-col items-center justify-center h-full">
-            <div className="mb-4 text-red-600 font-bold">現在地を取得できませんでした</div>
-            <Button onClick={getLocation} variant="outline">再取得する</Button>
+            <div className="mb-4 text-red-600 font-bold">
+              現在地を取得できませんでした
+            </div>
+            <Button onClick={getLocation} variant="outline">
+              再取得する
+            </Button>
           </div>
         ) : isLoaded ? (
           currentPosition ? (
@@ -157,7 +194,7 @@ export function NewLocationCheckScreen({
               <Marker
                 position={currentPosition}
                 icon={{
-                  url: getCharacterImage().src,//ここで画像を変更
+                  url: getCharacterImage().src, //ここで画像を変更
                   scaledSize: new window.google.maps.Size(40, 40),
                 }}
               />
@@ -165,10 +202,10 @@ export function NewLocationCheckScreen({
                 center={currentPosition}
                 radius={MAX_ONSEN_DISTANCE}
                 options={{
-                  strokeColor: '#4285F4',
+                  strokeColor: "#4285F4",
                   strokeOpacity: 0.8,
                   strokeWeight: 2,
-                  fillColor: '#4285F4',
+                  fillColor: "#4285F4",
                   fillOpacity: 0.2,
                 }}
               />
@@ -180,7 +217,7 @@ export function NewLocationCheckScreen({
                       lng: place.geometry.location.lng(),
                     }}
                     icon={{
-                      url: '/spa.png',
+                      url: "/spa.png",
                       scaledSize: new window.google.maps.Size(40, 40),
                     }}
                     onClick={() => {
@@ -189,7 +226,7 @@ export function NewLocationCheckScreen({
                       setOnsenDetail({
                         name: onsenLocations[idx].name,
                         place_id: onsenLocations[idx].place_id,
-                        geometry: onsenLocations[idx].geometry
+                        geometry: onsenLocations[idx].geometry,
                       });
                     }}
                   />
@@ -201,7 +238,7 @@ export function NewLocationCheckScreen({
                       }}
                       onCloseClick={() => {
                         setActiveOnsenIdx(null);
-                        setOnsen('未選択');
+                        setOnsen("未選択");
                         setOnsenDetail(null);
                       }}
                     >
@@ -219,6 +256,19 @@ export function NewLocationCheckScreen({
         )}
       </div>
 
+      {/* 温泉未選択時のみガイド表示（3秒後フェードイン＋パルス） */}
+      {showGuide && (
+        <div
+          className={`absolute bottom-100 left-1/2 -translate-x-1/2 bg-black/40 text-white text-sm font-medium px-4 py-2 rounded-full z-30 opacity-0 transition-opacity duration-700`}
+          style={{
+            opacity: showGuide ? 1 : 0,
+            animation: showGuide ? "pulse 1.5s infinite 0.7s" : "none",
+          }}
+        >
+          タップして温泉を選択!
+        </div>
+      )}
+
       {/* ヘッダー - オーバーレイ */}
       <div className="absolute top-0 left-0 right-0 z-10 flex items-center p-4 bg-white/80 backdrop-blur-sm">
         <Button variant="ghost" onClick={onBack} className="mr-2 p-2">
@@ -235,23 +285,26 @@ export function NewLocationCheckScreen({
               <Navigation className="h-5 w-5 text-app-main mr-2" />
               <div>
                 <p className="font-medium">
-                  {activeOnsenIdx !== null && onsenLocations[activeOnsenIdx].name
+                  {activeOnsenIdx !== null &&
+                    onsenLocations[activeOnsenIdx].name
                     ? onsenLocations[activeOnsenIdx].name
-                    : '[未選択]'}
+                    : "[未選択]"}
                 </p>
                 <p className="text-sm text-app-base-light">
-                  距離: {
-                    activeOnsenIdx !== null && onsenLocations[activeOnsenIdx]
-                      ? Math.round(
-                          calculateDistance(
-                            currentPosition?.lat ?? 0,
-                            currentPosition?.lng ?? 0,
-                            onsenLocations[activeOnsenIdx].geometry.location.lat(),
-                            onsenLocations[activeOnsenIdx].geometry.location.lng()
-                          )
-                        )
-                      : 0
-                  }m
+                  距離:{" "}
+                  {activeOnsenIdx !== null && onsenLocations[activeOnsenIdx]
+                    ? Math.round(
+                      calculateDistance(
+                        currentPosition?.lat ?? 0,
+                        currentPosition?.lng ?? 0,
+                        onsenLocations[
+                          activeOnsenIdx
+                        ].geometry.location.lat(),
+                        onsenLocations[activeOnsenIdx].geometry.location.lng()
+                      )
+                    )
+                    : 0}
+                  m
                 </p>
               </div>
             </div>
