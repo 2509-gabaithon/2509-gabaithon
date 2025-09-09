@@ -6,7 +6,7 @@ export interface UserProfileData {
   created_at: string;
 }
 
-export async function updateUserProfile(profile: Omit<UserProfileData, 'created_at'>): Promise<UserProfileData> {
+export async function updateUserProfile(profile: Omit<UserProfileData, 'id' | 'created_at'>): Promise<UserProfileData> {
   const supabase = createClient()
 
   console.log("ユーザープロフィールの更新を開始します", {
@@ -26,7 +26,7 @@ export async function updateUserProfile(profile: Omit<UserProfileData, 'created_
   const { data, error } = await supabase
     .from('profile')
     .update({name: profile.name})
-    .eq('id', profile.id)
+    .eq('id', user.id)
     .select('id, name, created_at')
     .single();
   

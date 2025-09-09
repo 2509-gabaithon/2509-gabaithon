@@ -266,7 +266,7 @@ export default function App() {
     }
     
     // DBにユーザープロフィールを保存
-    updateUserProfile({id: user?.id!, name: newUserData.name})
+    updateUserProfile({name: newUserData.name})
     
     setCurrentScreen('home');
   };
