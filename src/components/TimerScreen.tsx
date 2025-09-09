@@ -108,15 +108,12 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
   const currentTimerColor = getTimerTextColor(timeElapsed);
 
   return (
-    <div
-      className="min-h-screen p-4 relative overflow-hidden"
-      style={{
-        backgroundImage: `url(${backgroundImage.src})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
-    >
+    <div className="min-h-screen p-4 relative overflow-hidden">
+      <img
+        src={backgroundImage.src}
+        alt="Background"
+        className="absolute inset-0 w-full h-full object-cover z-0"
+      />
       {/* Steam animation styles */}
       <style jsx>{`
         @keyframes steam1 {
