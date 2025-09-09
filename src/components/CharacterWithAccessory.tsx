@@ -35,7 +35,10 @@ export function CharacterWithAccessory({
 }: CharacterWithAccessoryProps) {
   const [equippedAccessary, setEquippedAccessary] = useState<UserAccessary | null>(null);
   const [accessaryImageError, setAccessaryImageError] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // アクセサリ機能を一時的に無効化
+
+  // 🚨 DEBUG: アクセサリ機能を一時的に無効化してテスト
+  const ENABLE_ACCESSARY = false;
 
   // キャラクターの種類に応じて画像を選択
   const getCharacterImage = () => {
@@ -63,9 +66,28 @@ export function CharacterWithAccessory({
 
   // 装備中のアクセサリを取得
   useEffect(() => {
+    // 🚨 DEBUG: アクセサリ機能を一時的に無効化
+    if (!ENABLE_ACCESSARY) {
+      setLoading(false);
+      setEquippedAccessary(null);
+      return;
+    }
+
     const fetchEquippedAccessary = async () => {
       try {
         setLoading(true);
+        
+        // 認証状態を事前にチェック
+        const supabase = (await import('@/utils/supabase/client')).createClient();
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError || !user) {
+          console.warn('アクセサリ取得: 認証されていません');
+          setEquippedAccessary(null);
+          return;
+        }
+
+        // 認証済みの場合のみアクセサリ取得を実行
         const equipped = await getEquippedAccessary();
         setEquippedAccessary(equipped);
         setAccessaryImageError(false);
@@ -77,11 +99,33 @@ export function CharacterWithAccessory({
       }
     };
 
-    fetchEquippedAccessary();
+    // 非同期処理をタイムアウト付きで実行
+    const timeoutId = setTimeout(() => {
+      console.warn('アクセサリ取得がタイムアウトしました');
+      setLoading(false);
+      setEquippedAccessary(null);
+    }, 5000); // 5秒でタイムアウト
+
+    fetchEquippedAccessary().finally(() => {
+      clearTimeout(timeoutId);
+    });
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const sizeClass = sizeConfig[size];
   const characterImage = getCharacterImage();
+
+  console.log('🎭 CharacterWithAccessory render details:', {
+    characterName: character.name,
+    characterType: character.type,
+    size,
+    loading,
+    hasEquippedAccessary: !!equippedAccessary,
+    enableAccessary: ENABLE_ACCESSARY
+  });
 
   const handleAccessaryImageError = () => {
     setAccessaryImageError(true);
