@@ -1,55 +1,47 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
 import { CheckCircle, ArrowLeft, Sparkles } from 'lucide-react';
 import { BottomTabNavigation, TabType } from './BottomTabNavigation';
+import { Quest, getQuestsWithProgress } from '@/utils/supabase/quest';
 import stampImage from '@/assets/23d72f267674d7a86e5a4d3966ba367d52634bd9.png';
 import noiseTexture from '@/assets/221bcc06007de28e2dedf86e88d0a2798eac78e7.png';
 
-interface Quest {
-  id: number;
-  name: string;
-  image: string;
-  completed: boolean;
-  difficulty: string;
-}
-
 interface QuestListScreenProps {
   onBack: () => void;
-  onSelectQuest: (quest: any) => void;
+  onSelectQuest: (quest: Quest) => void;
   onTabChange?: (tab: TabType) => void;
 }
 
-const mockQuests: Quest[] = [
-  {
-    id: 1,
-    name: "初回入浴クエスト",
-    image: stampImage.src,
-    completed: true,
-    difficulty: "初級"
-  },
-  {
-    id: 2,
-    name: "長湯マスタークエスト",
-    image: stampImage.src,
-    completed: false,
-    difficulty: "上級"
-  },
-  {
-    id: 3,
-    name: "リラックスクエスト",
-    image: stampImage.src,
-    completed: false,
-    difficulty: "中級"
-  }
-];
-
 export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestListScreenProps) {
-  const completedCount = mockQuests.filter(quest => quest.completed).length;
-  const totalCount = mockQuests.length;
-  const progressPercentage = (completedCount / totalCount) * 100;
+  const [quests, setQuests] = useState<Quest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // クエストデータを取得
+  useEffect(() => {
+    const fetchQuests = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const questData = await getQuestsWithProgress();
+        setQuests(questData);
+      } catch (err) {
+        console.error('クエストデータ取得エラー:', err);
+        setError(err instanceof Error ? err.message : 'クエストデータの取得に失敗しました');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuests();
+  }, []);
+
+  const completedCount = quests.filter(quest => quest.isCompleted).length;
+  const totalCount = quests.length;
+  const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   const handleTabChange = (tab: TabType) => {
     if (onTabChange) {
@@ -65,6 +57,51 @@ export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestLi
       default: return 'bg-gray-500';
     }
   };
+
+  // ローディング状態
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-app-base via-app-main-dark to-app-main relative overflow-hidden p-4 pb-32">
+        <div className="max-w-md mx-auto relative z-10">
+          <div className="flex items-center mb-6">
+            <Button variant="ghost" onClick={onBack} className="mr-2 p-2 text-white hover:bg-white/20">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-2xl font-bold text-white">クエスト一覧</h1>
+          </div>
+          <Card className="mb-6 bg-white/95 backdrop-blur-sm border-white/20">
+            <CardContent className="p-8 text-center">
+              <p className="text-app-base">クエストデータを読み込み中...</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // エラー状態
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-app-base via-app-main-dark to-app-main relative overflow-hidden p-4 pb-32">
+        <div className="max-w-md mx-auto relative z-10">
+          <div className="flex items-center mb-6">
+            <Button variant="ghost" onClick={onBack} className="mr-2 p-2 text-white hover:bg-white/20">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-2xl font-bold text-white">クエスト一覧</h1>
+          </div>
+          <Card className="mb-6 bg-white/95 backdrop-blur-sm border-white/20">
+            <CardContent className="p-8 text-center">
+              <p className="text-red-600 mb-4">{error}</p>
+              <Button onClick={() => window.location.reload()} className="bg-app-main hover:bg-app-main-dark">
+                再読み込み
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-app-base via-app-main-dark to-app-main relative overflow-hidden p-4 pb-32">
@@ -114,11 +151,11 @@ export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestLi
         </Card>
 
         <div className="space-y-4">
-          {mockQuests.map((quest) => (
+          {quests.map((quest: Quest) => (
             <Card 
               key={quest.id} 
               className={`cursor-pointer transition-all bg-white/95 backdrop-blur-sm border-white/20 ${
-                quest.completed ? 'border-app-main shadow-lg' : 'hover:shadow-md hover:bg-white'
+                quest.isCompleted ? 'border-app-main shadow-lg' : 'hover:shadow-md hover:bg-white'
               }`}
               onClick={() => onSelectQuest(quest)}
             >
@@ -128,7 +165,7 @@ export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestLi
                     {/* スタンプ画像 */}
                     <div className="relative w-16 h-16 rounded-lg overflow-hidden">
                       <img
-                        src={quest.image}
+                        src={quest.image || stampImage.src}
                         alt={quest.name}
                         className="w-16 h-16 object-contain relative z-10"
                         style={{
@@ -148,11 +185,11 @@ export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestLi
                           backgroundSize: '64px 64px',
                           backgroundRepeat: 'repeat',
                           mixBlendMode: 'screen',
-                          mask: `url(${quest.image})`,
+                          mask: `url(${quest.image || stampImage.src})`,
                           maskSize: 'contain',
                           maskRepeat: 'no-repeat',
                           maskPosition: 'center',
-                          WebkitMask: `url(${quest.image})`,
+                          WebkitMask: `url(${quest.image || stampImage.src})`,
                           WebkitMaskSize: 'contain',
                           WebkitMaskRepeat: 'no-repeat',
                           WebkitMaskPosition: 'center'
@@ -165,11 +202,11 @@ export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestLi
                         style={{
                           background: `radial-gradient(ellipse at center, transparent 50%, rgba(93, 104, 138, 0.4) 65%, rgba(93, 104, 138, 0.6) 75%, transparent 90%)`,
                           mixBlendMode: 'multiply',
-                          mask: `url(${quest.image})`,
+                          mask: `url(${quest.image || stampImage.src})`,
                           maskSize: 'contain',
                           maskRepeat: 'no-repeat',
                           maskPosition: 'center',
-                          WebkitMask: `url(${quest.image})`,
+                          WebkitMask: `url(${quest.image || stampImage.src})`,
                           WebkitMaskSize: 'contain',
                           WebkitMaskRepeat: 'no-repeat',
                           WebkitMaskPosition: 'center'
@@ -177,7 +214,7 @@ export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestLi
                       />
                     </div>
                     
-                    {quest.completed && (
+                    {quest.isCompleted && (
                       <CheckCircle className="absolute -top-2 -right-2 h-6 w-6 text-app-main bg-white rounded-full" />
                     )}
                   </div>
@@ -185,12 +222,12 @@ export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestLi
                   <div className="ml-4 flex-1">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-bold text-app-base">{quest.name}</h3>
-                      <Badge className={getDifficultyColor(quest.difficulty)}>
-                        {quest.difficulty}
+                      <Badge className={getDifficultyColor(quest.difficulty || '初級')}>
+                        {quest.difficulty || '初級'}
                       </Badge>
                     </div>
                     
-                    {quest.completed ? (
+                    {quest.isCompleted ? (
                       <Badge className="bg-app-main">
                         ✓ 完了済み
                       </Badge>
