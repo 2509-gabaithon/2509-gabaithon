@@ -1,11 +1,86 @@
-# 入浴完了時のクエスト達成判定機能実装計画
+# クエスト完了状況表示の改善実装計画
 
 ## 🎯 新規要件
 
-### クエスト達成自動判定
-- **入浴完了時**: ## 🗃️ データベーススキーマ（参考）
+### クエスト完了状況の正確な表示
+- **完了判定ロジック**: `quest_submission` テーブルを正確に参照
+- **リアルタイム更新**: 入浴完了時に即座にクエスト一覧の完了状況を反映
+- **ユーザー固有**: 認証済みユーザーの完了状況のみ表示
+- **視覚的改善**: 完了/未完了の明確な区別表示
 
-### questテーブル更新後スキーマ
+## 📝 実装手順
+
+### Step 1: クエスト完了状況取得の改善
+- `/src/utils/supabase/quest.ts`
+- `getQuestsWithProgress` 関数のquest_submission参照ロジック改善
+- ユーザー認証状態に基づく適切なデータ取得
+
+### Step 2: 完了状況判定の精度向上
+- 各クエストごとの詳細な完了チェック
+- quest_onsenとquest_submissionの正確な照合
+- 部分完了と完全完了の区別
+
+### Step 3: UI表示の改善
+- `/src/components/QuestScreen.tsx`
+- 完了状況の視覚的表現改善
+- 進捗バーや完了率の正確な表示
+
+### Step 4: リアルタイム更新機能
+- クエスト達成通知後の一覧画面自動更新
+- 状態管理の最適化
+
+## 🗃️ 実装対象ファイル
+
+### DB関連
+1. **`/src/utils/supabase/quest.ts`**: quest_submission参照ロジック改善
+2. **クエリ最適化**: JOINクエリでパフォーマンス向上
+
+### UI関連
+3. **`/src/components/QuestScreen.tsx`**: 完了状況表示の改善
+4. **`/src/app/view_quest/page.tsx`**: 状態管理とリフレッシュ機能
+
+## 🔧 データ取得戦略
+
+### 現在の問題点
+- quest_submissionの参照が簡略化されている
+- 完了判定が曖昧（isCompleted vs userProgress）
+- リアルタイム更新が不十分
+
+### 改善案
+```sql
+-- 正確な完了状況クエリ
+SELECT 
+    q.id,
+    q.name,
+    q.created_at,
+    q.lat,
+    q.lng,
+    COUNT(qo.id) as total_onsen_count,
+    CASE 
+        WHEN qs.quest_id IS NOT NULL THEN true 
+        ELSE false 
+    END as is_completed
+FROM quest q
+LEFT JOIN quest_onsen qo ON q.id = qo.quest_id
+LEFT JOIN quest_submission qs ON q.id = qs.quest_id AND qs.user_id = $1
+GROUP BY q.id, q.name, q.created_at, q.lat, q.lng, qs.quest_id
+ORDER BY q.id;
+```
+
+## 🎨 UI改善ポイント
+
+### 完了状況の視覚化
+- **完了済み**: ✅ チェックマーク + グリーンボーダー
+- **未完了**: ⚪ 空サークル + グレーボーダー
+- **進捗表示**: 対象温泉数 / 完了状況
+
+### リアルタイム更新
+- クエスト達成通知後の自動リフレッシュ
+- 楽観的UI更新での体験向上
+
+## 🗃️ データベーススキーマ（参考）
+
+### questテーブル
 ```sql
 CREATE TABLE quest (
     id bigint PRIMARY KEY,
@@ -38,83 +113,8 @@ CREATE TABLE quest_submission (
 ```
 
 ## ⚠️ 考慮事項
-- 同じクエストの重複達成を防ぐ（quest_submission のPKで制御）
-- 複数クエスト同時達成時の通知方法
-- ネットワークエラー時のリトライ処理
-- ユーザー認証状態の確認
-- 入浴記録とクエスト達成のトランザクション整合性ク
-- **クエスト対象判定**: `quest_onsen.place_id` に該当温泉があるかで判断
-- **達成記録**: クエスト対象なら `quest_submission` にデータ追加
-- **クリア表示**: 達成時にユーザーに通知表示
-
-### UI改善（完了済み）
-- **ボタン名変更**: 「スタンプラリーを見る」→「湯けむりクエストを確認」
-- **サムネイル画像**: `public/quests/{quest.id}.png` から表示
-
-### DB拡張（完了済み）
-- **questテーブル**: `lat`, `lng` カラム追加（将来利用予定）
-
-## 📝 実装手順
-
-### Step 1: クエスト達成判定関数
-- `/src/utils/supabase/quest.ts`
-- `checkQuestCompletion(place_id)` 関数作成
-- `quest_onsen` テーブルから該当するquest_idを検索
-
-### Step 2: 入浴完了処理拡張
-- `/src/utils/supabase/nyuyoku-log.ts`
-- `insertNyuyokuLog` 関数にクエスト判定処理を追加
-- 入浴記録保存後にクエスト達成チェック実行
-
-### Step 3: クエスト達成通知UI
-- 達成時のポップアップ/トースト表示
-- 「クエスト達成！」メッセージとスタンプ表示
-- クエスト一覧への遷移ボタン
-
-### Step 4: 統合テスト
-- 入浴完了→クエスト判定→達成記録→通知表示の流れ
-- 複数クエスト同時達成の処理
-
-## 🗃️ 実装対象ファイル
-
-### DB関連
-1. **`/src/utils/supabase/quest.ts`**: クエスト達成判定関数追加
-2. **`/src/utils/supabase/nyuyoku-log.ts`**: 入浴完了処理にクエスト判定統合
-
-### UI関連
-3. **入浴完了画面**: クエスト達成通知コンポーネント
-4. **`/src/app/page.tsx`**: 入浴完了時の処理フロー更新
-
-## 🔧 データフロー
-
-### 入浴完了時の処理フロー
-```
-1. 入浴データを nyuyoku_log に保存
-2. place_id で quest_onsen テーブルを検索
-3. 該当するquest_idがあれば quest_submission に記録
-4. 達成したクエスト情報をユーザーに通知
-5. クエスト一覧画面の完了状況を更新
-```
-
-### 使用するDB関数
-- `quest_onsen` から `place_id` で検索
-- `quest_submission` に `user_id`, `quest_id` をupsert
-- 達成済みクエストの重複チェック
-
-## � データベース変更
-
-### questテーブル更新後スキーマ
-```sql
-CREATE TABLE quest (
-    id bigint PRIMARY KEY,
-    name text,
-    created_at timestamp with time zone DEFAULT now(),
-    lat double precision,     -- 新規追加
-    lng double precision      -- 新規追加
-);
-```
-
-## ⚠️ 注意事項
-- questテーブルの既存データには`lat`, `lng`は`NULL`
-- 画像ファイルが存在しない場合はフォールバック表示
-- 将来的に位置情報を活用した機能拡張予定
+- 大量のクエストデータでのパフォーマンス
+- ネットワーク遅延時のローディング状態
+- キャッシュ戦略の検討
+- エラー時のフォールバック表示
+- quest_submissionの正確な参照による完了判定
