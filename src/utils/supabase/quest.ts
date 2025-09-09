@@ -31,8 +31,157 @@ interface QuestSubmission {
   created_at: string;
 }
 
+// クエスト達成結果型
+export interface QuestCompletionResult {
+  questId: number;
+  questName: string;
+  wasAlreadyCompleted: boolean;
+}
+
 /**
- * 全クエストを取得し、ユーザーの進捗情報を付加
+ * 入浴した温泉がクエスト対象かチェックし、達成記録を保存
+ */
+export async function checkAndCompleteQuests(place_id: string): Promise<QuestCompletionResult[]> {
+  const supabase = createClient();
+  
+  console.log('🚀 クエスト達成チェック開始:', { place_id });
+  
+  try {
+    // ユーザー認証確認
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.log('❌ 認証エラー:', authError);
+      throw new Error('認証が必要です');
+    }
+
+    console.log('✅ ユーザー認証OK:', { userId: user.id });
+
+    // 入浴した温泉がクエスト対象かチェック（シンプルなクエリに変更）
+    const { data: questOnsens, error: onsenError } = await supabase
+      .from('quest_onsen')
+      .select('quest_id')
+      .eq('place_id', place_id);
+
+    console.log('🔍 クエスト対象温泉検索（シンプル版）:', {
+      place_id,
+      questOnsens,
+      onsenError,
+      foundCount: questOnsens?.length || 0,
+      rawQuestOnsens: questOnsens?.map(qo => ({
+        quest_id: qo.quest_id,
+        quest_id_type: typeof qo.quest_id
+      }))
+    });
+
+    if (onsenError) {
+      console.error('クエスト温泉検索エラー:', onsenError);
+      throw new Error('クエスト対象温泉の検索に失敗しました');
+    }
+
+    if (!questOnsens || questOnsens.length === 0) {
+      console.log('ℹ️ クエスト対象外の温泉です');
+      return [];
+    }
+
+    // 各対象クエストの詳細情報を取得
+    const results: QuestCompletionResult[] = [];
+
+    for (const questOnsen of questOnsens) {
+      const questId = questOnsen.quest_id;
+
+      // questIdのnullチェック
+      if (!questId || questId === null) {
+        console.warn('⚠️ quest_id が null です。データ不整合の可能性:', {
+          questOnsen,
+          place_id
+        });
+        continue;
+      }
+
+      // クエスト詳細情報を取得
+      const { data: questDetails, error: questError } = await supabase
+        .from('quest')
+        .select('id, name')
+        .eq('id', questId)
+        .single();
+
+      if (questError) {
+        console.error('クエスト詳細取得エラー:', questError);
+        continue;
+      }
+
+      const questName = questDetails?.name || 'Unknown Quest';
+
+      console.log('🎯 クエスト達成処理:', { questId, questName });
+
+      // 既に達成済みかチェック
+      const { data: existingSubmission, error: checkError } = await supabase
+        .from('quest_submission')
+        .select('quest_id')
+        .eq('user_id', user.id)
+        .eq('quest_id', questId)
+        .single();
+
+      console.log('📋 既存記録チェック:', {
+        questId,
+        existingSubmission,
+        checkError,
+        errorCode: checkError?.code
+      });
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        // PGRST116は「レコードが見つからない」エラーで正常
+        console.error('達成記録確認エラー:', checkError);
+        continue;
+      }
+
+      const wasAlreadyCompleted = !!existingSubmission;
+
+      if (!wasAlreadyCompleted) {
+        console.log('💾 新規達成記録を保存:', { questId, userId: user.id });
+        
+        // 新規達成として記録
+        const { data: insertData, error: insertError } = await supabase
+          .from('quest_submission')
+          .insert({
+            user_id: user.id,
+            quest_id: questId
+          })
+          .select();
+
+        console.log('💾 保存結果:', {
+          questId,
+          insertData,
+          insertError
+        });
+
+        if (insertError) {
+          console.error('❌ クエスト達成記録エラー:', insertError);
+          continue;
+        } else {
+          console.log('✅ クエスト達成記録成功:', { questId, questName });
+        }
+      } else {
+        console.log('ℹ️ 既に達成済み:', { questId, questName });
+      }
+
+      results.push({
+        questId,
+        questName,
+        wasAlreadyCompleted
+      });
+    }
+
+    return results;
+
+  } catch (error) {
+    console.error('checkAndCompleteQuests エラー:', error);
+    throw error;
+  }
+}
+
+/**
+ * 全クエストを取得し、ユーザーの進捗情報を付加（改善版）
  */
 export async function getQuestsWithProgress(): Promise<Quest[]> {
   const supabase = createClient();
@@ -69,11 +218,18 @@ export async function getQuestsWithProgress(): Promise<Quest[]> {
       throw new Error('温泉データの取得に失敗しました');
     }
 
-    // ユーザーの完了記録を取得
+    // ユーザーの完了記録を取得（quest_submissionから正確に参照）
     const { data: submissions, error: submissionError } = await supabase
       .from('quest_submission')
       .select('quest_id')
       .eq('user_id', user.id);
+
+    console.log('🔍 quest_submission查询结果:', {
+      userId: user.id,
+      submissions,
+      submissionError,
+      submissionCount: submissions?.length || 0
+    });
 
     if (submissionError) {
       console.error('完了記録取得エラー:', submissionError);
@@ -86,8 +242,14 @@ export async function getQuestsWithProgress(): Promise<Quest[]> {
       return acc;
     }, {} as Record<number, number>);
 
-    // 完了済みクエストIDセット
+    // 完了済みクエストIDセット（quest_submissionから正確に取得）
     const completedQuestIds = new Set((submissions || []).map((s: any) => s.quest_id));
+
+    console.log('🎯 完了状況判定:', {
+      questCount: quests.length,
+      completedQuestIds: Array.from(completedQuestIds),
+      onsenCounts
+    });
 
     // クエストデータを拡張
     const enrichedQuests: Quest[] = quests.map((quest: any) => {
@@ -99,7 +261,7 @@ export async function getQuestsWithProgress(): Promise<Quest[]> {
         difficulty: getDifficultyByQuestId(quest.id),
         image: getQuestImage(quest.id),
         onsenCount,
-        userProgress: isCompleted ? onsenCount : 0, // 簡略化: 完了 = 100%
+        userProgress: isCompleted ? onsenCount : 0,
         isCompleted
       };
     });

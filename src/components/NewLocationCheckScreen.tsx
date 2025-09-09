@@ -65,8 +65,8 @@ export function NewLocationCheckScreen({
   character,
 }: NewLocationCheckScreenProps) {
   const containerStyle = {
-    width: "100%",
-    height: "700px",
+    width: '100%',
+    height: '100%',
   };
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!,

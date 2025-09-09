@@ -1,6 +1,8 @@
 import { createClient } from './client'
+import { checkAndCompleteQuests, QuestCompletionResult } from './quest'
 
 export interface NyuyokuLogData {
+  id?: number;        // Auto-increment PK (optional for insert)
   user_id: string;
   total_ms: number;
   started_at: string; // ISO 8601 format
@@ -9,10 +11,21 @@ export interface NyuyokuLogData {
   onsen_place_id: string;
   onsen_lat: number;
   onsen_lng: number;
+  created_at?: string; // Optional, auto-generated
 }
 
-export async function insertNyuyokuLog(logData: Omit<NyuyokuLogData, 'user_id'>) {
+export interface NyuyokuLogResult {
+  logData: NyuyokuLogData | null;
+  questCompletions: QuestCompletionResult[];
+}
+
+export async function insertNyuyokuLog(logData: Omit<NyuyokuLogData, 'id' | 'user_id' | 'created_at'>): Promise<NyuyokuLogResult> {
   const supabase = createClient()
+  
+  console.log('🛁 入浴ログ保存開始:', {
+    onsen_place_id: logData.onsen_place_id,
+    onsen_name: logData.onsen_name
+  });
   
   // 認証されたユーザーを取得
   const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -32,11 +45,29 @@ export async function insertNyuyokuLog(logData: Omit<NyuyokuLogData, 'user_id'>)
       user_id: user.id,
       ...logData
     })
-    .select()
+    .select('id, user_id, total_ms, started_at, ended_at, onsen_name, onsen_place_id, onsen_lat, onsen_lng, created_at')
+    .single();
 
   if (error) {
     throw new Error(`入浴ログ保存エラー: ${error.message}`)
   }
 
-  return data
+  // 入浴記録保存後、クエスト達成判定を実行
+  let questCompletions: QuestCompletionResult[] = [];
+  try {
+    console.log('🎯 クエスト達成判定開始:', { place_id: logData.onsen_place_id });
+    questCompletions = await checkAndCompleteQuests(logData.onsen_place_id);
+    console.log('🎯 クエスト達成判定完了:', {
+      completionCount: questCompletions.length,
+      completions: questCompletions
+    });
+  } catch (questError) {
+    // クエスト判定エラーは警告として記録するが、入浴ログ保存は成功とする
+    console.warn('❌ クエスト判定処理でエラーが発生しました:', questError);
+  }
+
+  return {
+    logData: data,
+    questCompletions
+  };
 }
