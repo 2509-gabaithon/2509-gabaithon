@@ -108,7 +108,7 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
   const currentTimerColor = getTimerTextColor(timeElapsed);
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen p-4 relative overflow-hidden">
       <img
         src={backgroundImage.src}
         alt="Background"
