@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { Sparkles } from 'lucide-react';
 import kawaiiImage from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png';
-import backgroundImage from '@/assets/ac98676411915df3391ad15ed92a3dbb57c0f66a.png';
+import backgroundImage from '/public/ac98676411915df3391ad15ed92a3dbb57c0f66a.png';
 
 interface Character {
   name: string;
@@ -31,7 +31,7 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
+
     if (isRunning) {
       interval = setInterval(() => {
         const diffMilliseconds = Date.now() - timeStart.getTime()
@@ -55,23 +55,23 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
     if (minutes >= 30) {
       return '#f7a5a5'; // 30分以上はメインカラー固定
     }
-    
+
     // 0分から30分まで線形補間
     const progress = minutes / 30; // 0〜1の値
-    
+
     // 白色 (#ffffff) からメインカラー (#f7a5a5) への補間
     const baseR = 0xff;
     const baseG = 0xff;
     const baseB = 0xff;
-    
+
     const targetR = 0xf7;
     const targetG = 0xa5;
     const targetB = 0xa5;
-    
+
     const r = Math.round(baseR + (targetR - baseR) * progress);
     const g = Math.round(baseG + (targetG - baseG) * progress);
     const b = Math.round(baseB + (targetB - baseB) * progress);
-    
+
     return `rgb(${r}, ${g}, ${b})`;
   };
 
@@ -108,7 +108,7 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
   const currentTimerColor = getTimerTextColor(timeElapsed);
 
   return (
-    <div 
+    <div
       className="min-h-screen p-4 relative overflow-hidden"
       style={{
         backgroundImage: `url(${backgroundImage.src})`,
@@ -233,7 +233,7 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
           <div className="steam3 w-10 h-16 bg-white/80 rounded-full blur-sm absolute -top-8 left-8"></div>
           <div className="steam4 w-7 h-11 bg-white/65 rounded-full blur-sm absolute -top-5 -right-8"></div>
         </div>
-        
+
         {/* Steam from bottom corners */}
         <div className="absolute bottom-20 left-8">
           <div className="steam5 w-12 h-18 bg-white/60 rounded-full blur-md"></div>
@@ -250,10 +250,10 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
       </div>
 
       <div className="max-w-md mx-auto flex flex-col min-h-screen relative z-10">
-        
+
         {/* タイマー表示 - 上の方に配置 */}
         <div className="text-center mt-24 mb-auto">
-          <div 
+          <div
             className="text-8xl font-bold mb-4 drop-shadow-lg"
             style={{ color: currentTimerColor }}
           >
@@ -267,8 +267,8 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
         {/* ボタン群 - 下の方に配置 */}
         <div className="mt-auto mb-12">
           {/* 入浴ボタン */}
-          <Button 
-            size="lg" 
+          <Button
+            size="lg"
             className="w-full mb-6 py-4 text-lg shadow-lg bg-app-main hover:bg-app-main-dark text-white border-app-main"
             onClick={handleButtonClick}
           >
@@ -291,7 +291,7 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
       {/* 確認モーダル */}
       <Dialog open={showExitModal} onOpenChange={(open) => setShowExitModal(open)} // 背景クリックでも閉じる
       >
-        
+
         <DialogContent showCloseButton={false} className="w-full max-w-sm mx-auto bg-white/95 backdrop-blur-sm border-2 border-app-accent-1">
           <DialogHeader className="text-center">
             <div className="mx-auto mb-4 w-16 h-16 bg-app-accent-2 rounded-full border-4 border-app-accent-1 flex items-center justify-center">
@@ -306,7 +306,7 @@ export function TimerScreen({ character, onComplete, onCancel }: TimerScreenProp
               入浴時間：{formatTime(timeElapsed)}
             </DialogDescription>
           </DialogHeader>
-          
+
           <DialogFooter className="flex flex-col space-y-3 sm:flex-col sm:space-x-0 sm:space-y-3">
             <Button
               onClick={handleExitConfirm}
