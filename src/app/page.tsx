@@ -88,7 +88,7 @@ export default function App() {
   const [characterName, setCharacterName] = useState<string>('');
   const [selectedOnsen, setSelectedOnsen] = useState<string>('');
   const [currentCharacter, setCurrentCharacter] = useState<Character>({
-    name: '',
+    name: 'もちもちうさぎ',
     type: 'sakura-san',
     level: 1,
     exp: 0,
