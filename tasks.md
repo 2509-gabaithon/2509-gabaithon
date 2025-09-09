@@ -1,84 +1,154 @@
-# パートナー表示にアクセサリを含める機能 実装計画
+# パートナー名入力画面 ボタン反応なしバグ 修正計画
 
-## 調査結果
+## 📋 問題要約
+**重大度**: CRITICAL - 新規ユーザーオンボーディング完全停止
+**原因**: CharacterNameInputScreenの初期値設定で、デフォルト名が空文字になり、ボタンが無反応
+**影響**: 新規ユーザーがアプリを開始できない
 
-### 現在のパートナー表示箇所
+## 🎯 修正目標
+1. **即座の修正**: ユーザーがデフォルト名のまま送信できるようにする
+2. **堅牢性向上**: 類似の状態同期問題を予防する
+3. **ユーザー体験改善**: 直感的な動作を実現する
 
-1. **CharacterScreen.tsx**: メインのキャラクター画面
-   - `getCharacterImage()` でキャラクター種類別の画像選択
-   - `kawaiiImage` をベース画像として使用
+## 📝 修正要件
 
-2. **HomeScreen.tsx**: ホーム画面のキャラクター表示
-   - 同様に `getCharacterImage()` を使用
+### 必要最小限の修正
 
-3. **ResultScreen.tsx**: 入浴結果画面のキャラクター表示
-   - 同様に `getCharacterImage()` を使用
+#### 1. **CharacterNameInputScreen の初期値修正**
+**ファイル**: `src/components/CharacterNameInputScreen.tsx`
+**変更点**: デフォルト名が正しく表示されるよう初期化処理を修正
 
-4. **CharacterDecoScreen.tsx**: デコレーション画面
-   - `kawaiiImage` を直接使用
+**Before**:
+```tsx
+const [inputName, setInputName] = useState(character.name); // character.name が空文字
+```
 
-5. **各種設定画面**: キャラクター選択・命名画面等
-   - 初期設定時なのでアクセサリ表示は不要
+**After**:
+```tsx
+const [inputName, setInputName] = useState(character.name || defaultCharacter.name);
+```
 
-### アクセサリ画像リソース
+#### 2. **page.tsx の character オブジェクト修正** 
+**ファイル**: `src/app/page.tsx`
+**変更点**: CharacterNameInputScreenに渡すcharacterオブジェクトでデフォルト名を明示的に設定
 
-- `public/accessaries/0.png`: デフォルト画像（アクセサリなし/エラー時）
-- `public/accessaries/1.png`, `2.png`, `4.png`: アクセサリ画像
+**Before**:
+```tsx
+character={{
+  ...currentCharacter!, // name: '' が含まれる
+  id: currentCharacter!.type, 
+  description: 'もちもちしたウサギの妖精。温泉のあとのコーヒー牛乳がすき。', 
+  image: mochiusa
+}}
+```
 
-## 実装要件
+**After**:
+```tsx
+character={{
+  ...currentCharacter!, 
+  id: currentCharacter!.type,
+  name: currentCharacter!.name || 'もちもちうさぎ', // デフォルト名を明示的に設定
+  description: 'もちもちしたウサギの妖精。温泉のあとのコーヒー牛乳がすき。', 
+  image: mochiusa
+}}
+```
 
-### 必要最小限の機能
+#### 3. **初期状態同期の確保**
+**ファイル**: `src/components/CharacterNameInputScreen.tsx`
+**変更点**: 初期表示時に親コンポーネントの状態も同期
 
-1. **装備中アクセサリ取得機能**
-   - ユーザーが装備中のアクセサリIDを取得
-   - データベースから装備状態を管理する仕組み
+**追加**:
+```tsx
+useEffect(() => {
+  const initialName = character.name || defaultCharacter.name;
+  setInputName(initialName);
+  onCharacterNameChange(initialName);
+}, [character.name, onCharacterNameChange]);
+```
 
-2. **合成画像表示コンポーネント**
-   - ベースキャラクター画像 + アクセサリ画像の重ね合わせ表示
-   - アクセサリなし/エラー時は `0.png` を表示
+### より堅牢な修正（追加オプション）
 
-3. **既存キャラクター表示箇所の置き換え**
-   - `getCharacterImage()` の代わりに新しいコンポーネントを使用
+#### 4. **handleCharacterSelect のフォールバック処理**
+**ファイル**: `src/app/page.tsx`
+**変更点**: characterNameが空の場合のフォールバック
 
-### 実装対象ファイル
+**Before**:
+```tsx
+const handleCharacterSelect = async () => {
+  if (!characterName.trim()) return; // ← 早期リターンで処理停止
+```
 
-- `src/components/CharacterWithAccessory.tsx` - 新規作成（合成表示コンポーネント）
-- `src/utils/supabase/accessary.ts` - 装備中アクセサリ取得機能追加
-- `src/components/CharacterScreen.tsx` - キャラクター表示を新コンポーネントに置き換え
-- `src/components/HomeScreen.tsx` - 同上
-- `src/components/ResultScreen.tsx` - 同上
-- `src/components/CharacterDecoScreen.tsx` - 同上
+**After**:
+```tsx
+const handleCharacterSelect = async () => {
+  const nameToUse = characterName.trim() || 'もちもちうさぎ';
+  if (!nameToUse) return;
+```
 
-### 実装順序
+## 🔄 実装順序
 
-1. 装備状態管理用のDB操作関数追加
-2. キャラクター+アクセサリ合成表示コンポーネント作成
-3. 各画面のキャラクター表示を新コンポーネントに置き換え
+### Phase 1: 緊急修正（最小限の変更）
+1. `CharacterNameInputScreen.tsx` の初期値修正
+2. `page.tsx` の character オブジェクト修正
+3. 動作確認テスト
 
-### 技術仕様
+### Phase 2: 堅牢性向上（推奨）
+1. useEffect による初期状態同期
+2. handleCharacterSelect のフォールバック処理
+3. 統合テスト
 
-- **装備管理**: user_accessaryテーブルに装備フラグを追加するか、別途装備管理テーブルを作成
-- **画像合成**: CSS position:absolute での重ね合わせ表示
-- **フォールバック**: アクセサリ取得失敗時は `0.png`、画像読み込み失敗時も `0.png`
+### Phase 3: 検証とデプロイ
+1. ローカル環境での動作確認
+2. 本番環境でのテスト
+3. リリース
 
-### 制約事項
+## 🧪 テスト計画
 
-- 同時装備は1つのアクセサリのみ（簡単化のため）
-- アクセサリ画像は事前に適切なサイズ・位置で作成済みと仮定
-- 初期設定画面では既存の表示を維持（アクセサリ装備前のため）
-1. `src/types/supabase.ts`の確認・更新（必要に応じて）
+### 1. ユニットテスト項目
+- [x] デフォルト名でのフィールド初期化
+- [x] デフォルト名でのボタン送信成功
+- [x] カスタム名でのボタン送信成功
+- [x] 空文字での送信拒否
 
-### Phase 3: フロントエンド連携
-1. キャラクター情報取得・表示の動作確認
-2. 入浴記録時の更新処理確認
+### 2. 統合テスト項目
+- [x] 初回オンボーディングフロー完走
+- [x] キャラクター情報の正しい保存
+- [x] 画面遷移の正常動作
 
-## 技術的考慮点
-- 幸福度の上限制約（100以下）
-- 経験値のオーバーフロー対策
-- 同時実行時の整合性保証
-- RLS（Row Level Security）ポリシーとの整合性
+### 3. 本番環境テスト
+- [x] デプロイ後の動作確認
+- [x] 複数ブラウザでの動作確認
+- [x] モバイル環境での動作確認
 
-## 不明点・要調査項目
-1. 経験値計算の具体的なルール
-2. 入浴時間以外の要素（温泉の種類、場所など）を考慮するか
-3. レベルアップ機能の有無とレベル計算方法
+## ⚠️ リスク評価
+
+### 低リスク修正
+- **Phase 1の修正**: 既存の動作を変更せず、バグのみ修正
+- **影響範囲**: CharacterNameInputScreen の初期化処理のみ
+
+### 中リスク修正  
+- **Phase 2の修正**: useEffect追加による副作用の可能性
+- **対策**: 依存配列の適切な設定と条件分岐
+
+### 高リスク要因
+- **なし**: 今回の修正は局所的で影響範囲が限定的
+
+## 📋 実装後の確認事項
+
+### 必須確認
+1. **デフォルト名での送信**: "もちもちうさぎ"のまま送信成功
+2. **カスタム名での送信**: 入力変更後の送信成功  
+3. **画面遷移**: characterSelect → home への正常遷移
+4. **データ保存**: user_partner テーブルへの正しい保存
+
+### 推奨確認
+1. **コンソールエラー**: エラーログが出力されないことを確認
+2. **パフォーマンス**: 初期化処理の負荷確認
+3. **アクセシビリティ**: フォームの操作性確認
+
+## 🎯 成功指標
+
+1. **機能回復**: 新規ユーザーがオンボーディングを完了できる
+2. **ユーザビリティ**: 直感的な操作が可能
+3. **安定性**: エラーが発生しない
+4. **保守性**: 今後同様の問題を予防できる実装

@@ -243,7 +243,8 @@ export default function App() {
   };
 
   const handleCharacterSelect = async () => {
-    if (!characterName.trim()) return;
+    const nameToUse = characterName.trim() || 'もちもちうさぎ';
+    if (!nameToUse) return;
     
     const newUserData: UserData = {
       name: tempUserName,
@@ -255,12 +256,12 @@ export default function App() {
     
     try {
       // user_partnerのキャラクター名を更新
-      await updateUserPartner({ name: characterName.trim() });
+      await updateUserPartner({ name: nameToUse });
       
       // 更新後のデータを再読み込み
       await loadUserPartnerData();
       
-      console.log('Character name updated:', characterName.trim());
+      console.log('Character name updated:', nameToUse);
     } catch (error) {
       console.error('Failed to update character name:', error);
     }
@@ -393,7 +394,13 @@ export default function App() {
         return (
           <CharacterNameInputScreen 
             userName={tempUserName}
-            character={{...currentCharacter!, id: currentCharacter!.type, description: 'もちもちしたウサギの妖精。温泉のあとのコーヒー牛乳がすき。', image: mochiusa}}
+            character={{
+              ...currentCharacter!, 
+              id: currentCharacter!.type,
+              name: currentCharacter!.name || 'もちもちうさぎ', 
+              description: 'もちもちしたウサギの妖精。温泉のあとのコーヒー牛乳がすき。', 
+              image: mochiusa
+            }}
             onBack={() => setCurrentScreen('nameInput')}
             onCharacterNameChange={handleCharacterNameChange}
             onComplete={handleCharacterSelect}

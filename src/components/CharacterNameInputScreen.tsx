@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
@@ -33,7 +33,14 @@ export function CharacterNameInputScreen({
   onCharacterNameChange,
   onComplete,
 }: CharacterNameInputScreenProps) {
-  const [inputName, setInputName] = useState(character.name);
+  const [inputName, setInputName] = useState(character.name || defaultCharacter.name);
+
+  // 初期表示時に親コンポーネントの状態も同期
+  useEffect(() => {
+    const initialName = character.name || defaultCharacter.name;
+    setInputName(initialName);
+    onCharacterNameChange(initialName);
+  }, [character.name, onCharacterNameChange]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;
