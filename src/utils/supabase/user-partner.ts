@@ -48,6 +48,8 @@ export async function updateUserPartner(updates: UserPartnerUpdate): Promise<Use
   const supabase = createClient()
   
   const { data: { user }, error: authError } = await supabase.auth.getUser()
+  console.log(user);
+  
   
   if (authError || !user) {
     throw new Error('認証が必要です')

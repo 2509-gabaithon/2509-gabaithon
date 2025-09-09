@@ -20,10 +20,10 @@ import { insertNyuyokuLog, NyuyokuLogResult } from '@/utils/supabase/nyuyoku-log
 import { QuestCompletionResult } from '@/utils/supabase/quest';
 import { getUserPartner, calculateLevel, getExpToNextLevel } from '@/utils/supabase/user-partner';
 import { QuestCompletionNotification } from '@/components/QuestCompletionNotification';
-import { useRouter } from 'next/navigation';
 import type { accounts, CredentialResponse } from 'google-one-tap'
 import type { User } from '@supabase/supabase-js';
 import { updateUserProfile } from '@/utils/supabase/profile';
+import { updateUserPartner } from '@/utils/supabase/user-partner';
 
 type ScreenType = 
   | 'title'
@@ -255,7 +255,6 @@ export default function App() {
     
     try {
       // user_partnerのキャラクター名を更新
-      const { updateUserPartner } = await import('@/utils/supabase/user-partner');
       await updateUserPartner({ name: characterName.trim() });
       
       // 更新後のデータを再読み込み
@@ -394,7 +393,7 @@ export default function App() {
         return (
           <CharacterNameInputScreen 
             userName={tempUserName}
-            character={{...currentCharacter!, id: currentCharacter!.type, description: 'ここにパートナーの説明が入る', image: mochiusa}}
+            character={{...currentCharacter!, id: currentCharacter!.type, description: 'もちもちしたウサギの妖精。温泉のあとのコーヒー牛乳がすき。', image: mochiusa}}
             onBack={() => setCurrentScreen('nameInput')}
             onCharacterNameChange={handleCharacterNameChange}
             onComplete={handleCharacterSelect}
