@@ -1,1 +1,0 @@
-alter table "public"."quest_onsen" add column "name" text not null;
