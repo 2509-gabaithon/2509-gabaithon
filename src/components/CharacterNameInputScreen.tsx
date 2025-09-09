@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
@@ -36,13 +36,11 @@ export function CharacterNameInputScreen({
   const initialName = character.name || defaultCharacter.name;
   const [inputName, setInputName] = useState(initialName);
   
-  // 初期化フラグを使用して一度だけ親の状態を更新
-  const isInitializedRef = useRef(false);
-  
-  if (!isInitializedRef.current) {
+  // 初期化時のみ親の状態を同期
+  useEffect(() => {
     onCharacterNameChange(initialName);
-    isInitializedRef.current = true;
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 初回のみ実行
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;

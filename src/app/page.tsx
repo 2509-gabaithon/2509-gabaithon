@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { TitleScreen } from '@/components/TitleScreen';
 import { NameInputScreen } from '@/components/NameInputScreen';
 import { CharacterNameInputScreen } from '@/components/CharacterNameInputScreen';
@@ -238,9 +238,9 @@ export default function App() {
     setCurrentScreen('characterSelect');
   };
 
-  const handleCharacterNameChange = (name: string) => {
+  const handleCharacterNameChange = useCallback((name: string) => {
     setCharacterName(name);
-  };
+  }, []);
 
   const handleCharacterSelect = async () => {
     const nameToUse = characterName.trim() || 'もちもちうさぎ';
