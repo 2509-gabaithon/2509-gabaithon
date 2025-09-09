@@ -1,0 +1,1 @@
+alter table "public"."user_accessary" add column "equipped" boolean not null;
