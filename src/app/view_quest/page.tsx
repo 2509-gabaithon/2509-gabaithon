@@ -2,14 +2,15 @@
 
 import { StampRallyScreen } from "@/components/QuestScreen"
 import type { TabType } from '@/components/BottomTabNavigation';
+import type { Quest } from '@/utils/supabase/quest';
 
 export default function ViewStamp() {
   const handleBack = () => {
     console.log("handleBack")
   }
 
-  const handleSelectQuest = (quest: object) => {
-    console.log(`handleSelectOnsen %o`, quest)
+  const handleSelectQuest = (quest: Quest) => {
+    console.log(`handleSelectQuest %o`, quest)
   }
 
   const handleTabChange = (tabType: TabType) => {
