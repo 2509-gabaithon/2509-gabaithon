@@ -104,7 +104,7 @@ export function CharacterScreen({ character, userName, onNavigateToStampRally, o
             className="w-full"
             onClick={onNavigateToStampRally}
           >
-            🗾 スタンプラリーを見る
+            🗾 湯けむりクエストを確認
           </Button>
           
           <Button 
