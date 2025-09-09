@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import { CheckCircle, Sparkles, Award } from 'lucide-react';
+import { CheckCircle, Sparkles, Award, Gift } from 'lucide-react';
 import { QuestCompletionResult } from '@/utils/supabase/quest';
 
 interface QuestCompletionNotificationProps {
@@ -18,6 +18,11 @@ export function QuestCompletionNotification({
 }: QuestCompletionNotificationProps) {
   // 新規達成したクエストのみを表示
   const newCompletions = completions.filter(c => !c.wasAlreadyCompleted);
+  
+  // アクセサリ獲得情報を集計
+  const accessaryRewards = newCompletions
+    .filter(c => c.accessaryReward?.granted)
+    .map(c => c.accessaryReward!);
 
   if (newCompletions.length === 0) {
     return null;
@@ -63,21 +68,67 @@ export function QuestCompletionNotification({
             {newCompletions.map((completion) => (
               <div 
                 key={completion.questId}
-                className="flex items-center p-3 bg-app-main/10 rounded-lg border border-app-main/20"
+                className="p-3 bg-app-main/10 rounded-lg border border-app-main/20 space-y-2"
               >
-                <div className="mr-3">
-                  <CheckCircle className="w-6 h-6 text-app-main" />
+                <div className="flex items-center">
+                  <div className="mr-3">
+                    <CheckCircle className="w-6 h-6 text-app-main" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-app-base">
+                      {completion.questName}
+                    </h3>
+                    <Badge className="bg-app-main text-white text-xs">
+                      達成済み
+                    </Badge>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-app-base">
-                    {completion.questName}
-                  </h3>
-                  <Badge className="bg-app-main text-white text-xs">
-                    達成済み
-                  </Badge>
-                </div>
+                
+                {/* アクセサリ獲得表示 */}
+                {completion.accessaryReward?.granted && (
+                  <div className="flex items-center mt-2 p-2 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-md border border-yellow-200">
+                    <div className="mr-2">
+                      <Gift className="w-4 h-4 text-yellow-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-yellow-800">
+                        🎁 アクセサリ獲得！
+                      </p>
+                      <p className="text-xs text-yellow-700">
+                        {completion.accessaryReward.accessary.name}
+                      </p>
+                    </div>
+                    <Badge className="bg-yellow-500 text-white text-xs">
+                      NEW
+                    </Badge>
+                  </div>
+                )}
               </div>
             ))}
+
+            {/* アクセサリ獲得サマリー */}
+            {accessaryRewards.length > 0 && (
+              <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                <div className="flex items-center mb-2">
+                  <Gift className="w-5 h-5 text-purple-600 mr-2" />
+                  <h4 className="font-semibold text-purple-800">
+                    獲得したアクセサリ
+                  </h4>
+                </div>
+                <div className="space-y-1">
+                  {accessaryRewards.map((reward, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <span className="text-sm text-purple-700">
+                        {reward.accessary.name}
+                      </span>
+                      <Badge className="bg-purple-500 text-white text-xs">
+                        獲得
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-col gap-3 pt-4">
               <Button 

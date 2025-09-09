@@ -5,6 +5,7 @@ import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
 import { Heart, Star, Droplets, Map, Sparkles } from "lucide-react";
 import { BottomTabNavigation, TabType } from "./BottomTabNavigation";
+import { CharacterWithAccessory } from './CharacterWithAccessory';
 import beppyonImage from "@/assets/3c6e9e82c814a4dcb5208e61977d5118a50e6a2c.png";
 import yuttsuraImage from "@/assets/cc82c1498637df3406caa6867e011e9f0b8813d7.png";
 import kawaiiImage from "@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png";
@@ -61,11 +62,13 @@ export function HomeScreen({
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="text-center mb-4">
-              <img
-                src={getCharacterImage().src}
-                alt={character.name}
-                className="w-32 h-32 mx-auto object-contain mb-3"
-              />
+              <div className="mx-auto mb-3">
+                <CharacterWithAccessory
+                  character={character}
+                  size="lg"
+                  className="mx-auto"
+                />
+              </div>
               <h2 className="text-xl font-bold text-app-base">
                 {character.name}
               </h2>
