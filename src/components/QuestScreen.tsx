@@ -163,11 +163,11 @@ export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestLi
                 <div className="flex items-center">
                   <div className="relative">
                     {/* スタンプ画像 */}
-                    <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+                    <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-white">
                       <img
                         src={quest.image || stampImage.src}
                         alt={quest.name}
-                        className="w-16 h-16 object-contain relative z-10"
+                        className="w-16 h-16 object-cover relative z-10"
                         onError={(e) => {
                           // 画像読み込み失敗時はフォールバック画像を使用
                           (e.target as HTMLImageElement).src = stampImage.src;
@@ -183,18 +183,18 @@ export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestLi
                       
                       {/* 白いノイズテクスチャオーバーレイ */}
                       <div 
-                        className="absolute inset-0 w-16 h-16 opacity-25 pointer-events-none z-20"
+                        className="absolute inset-0 w-16 h-16 opacity-25 pointer-events-none z-20 rounded-xl"
                         style={{
                           backgroundImage: `url(${noiseTexture.src})`,
                           backgroundSize: '64px 64px',
                           backgroundRepeat: 'repeat',
                           mixBlendMode: 'screen',
                           mask: `url(${quest.image || stampImage.src})`,
-                          maskSize: 'contain',
+                          maskSize: 'cover',
                           maskRepeat: 'no-repeat',
                           maskPosition: 'center',
                           WebkitMask: `url(${quest.image || stampImage.src})`,
-                          WebkitMaskSize: 'contain',
+                          WebkitMaskSize: 'cover',
                           WebkitMaskRepeat: 'no-repeat',
                           WebkitMaskPosition: 'center'
                         }}
@@ -202,16 +202,16 @@ export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestLi
 
                       {/* 印影効果 */}
                       <div 
-                        className="absolute inset-0 w-16 h-16 opacity-20 pointer-events-none z-15"
+                        className="absolute inset-0 w-16 h-16 opacity-20 pointer-events-none z-15 rounded-xl"
                         style={{
                           background: `radial-gradient(ellipse at center, transparent 50%, rgba(93, 104, 138, 0.4) 65%, rgba(93, 104, 138, 0.6) 75%, transparent 90%)`,
                           mixBlendMode: 'multiply',
                           mask: `url(${quest.image || stampImage.src})`,
-                          maskSize: 'contain',
+                          maskSize: 'cover',
                           maskRepeat: 'no-repeat',
                           maskPosition: 'center',
                           WebkitMask: `url(${quest.image || stampImage.src})`,
-                          WebkitMaskSize: 'contain',
+                          WebkitMaskSize: 'cover',
                           WebkitMaskRepeat: 'no-repeat',
                           WebkitMaskPosition: 'center'
                         }}
