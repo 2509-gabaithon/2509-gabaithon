@@ -16,7 +16,9 @@ import { TabType } from '@/components/BottomTabNavigation';
 import mochiusa from '@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png'
 import ureshinoStamp from '@/assets/23d72f267674d7a86e5a4d3966ba367d52634bd9.png'
 import { createClient } from '@/utils/supabase/client';
-import { insertNyuyokuLog } from '@/utils/supabase/nyuyoku-log';
+import { insertNyuyokuLog, NyuyokuLogResult } from '@/utils/supabase/nyuyoku-log';
+import { QuestCompletionResult } from '@/utils/supabase/quest';
+import { QuestCompletionNotification } from '@/components/QuestCompletionNotification';
 import { useRouter } from 'next/navigation';
 import type { accounts, CredentialResponse } from 'google-one-tap'
 import type { User } from '@supabase/supabase-js';
@@ -97,6 +99,8 @@ export default function App() {
   const [timerDuration, setTimerDuration] = useState<number>(0);
   const [timerStartTime, setTimerStartTime] = useState<Date | null>(null);
   const [acquiredStamp, setAcquiredStamp] = useState<{ name: string; icon: string } | null>(null);
+  const [questCompletions, setQuestCompletions] = useState<QuestCompletionResult[]>([]);
+  const [showQuestNotification, setShowQuestNotification] = useState(false);
   
   const supabase = createClient(); // クライアントを一度だけ作成
 
@@ -254,7 +258,7 @@ export default function App() {
       setTimerDuration(data.timeSpent);
       setTimerStartTime(data.startTime);
       
-      // nyuyoku_log にデータを保存
+      // nyuyoku_log にデータを保存し、クエスト達成判定を実行
       if (selectedLocation && user) {
         const logData = {
           total_ms: data.timeSpent * 60 * 1000, // 分をミリ秒に変換
@@ -266,8 +270,15 @@ export default function App() {
           onsen_lng: selectedLocation.geometry.location.lng()
         };
         
-        await insertNyuyokuLog(logData);
+        const result: NyuyokuLogResult = await insertNyuyokuLog(logData);
         console.log('入浴ログを保存しました');
+        
+        // クエスト達成があった場合は通知を設定
+        if (result.questCompletions.length > 0) {
+          setQuestCompletions(result.questCompletions);
+          setShowQuestNotification(true);
+          console.log('クエスト達成:', result.questCompletions);
+        }
       }
       
       // 獲得するスタンプ情報を設定
@@ -279,6 +290,17 @@ export default function App() {
       setAcquiredStamp({ name: selectedOnsen || '未選択', icon: ureshinoStamp.src });
       setCurrentScreen('stampAcquisition');
     }
+  };
+
+  const handleQuestNotificationClose = () => {
+    setShowQuestNotification(false);
+    setQuestCompletions([]);
+  };
+
+  const handleViewQuests = () => {
+    setShowQuestNotification(false);
+    setQuestCompletions([]);
+    setCurrentScreen('stampRally');
   };
 
   const handleStampAcquisitionComplete = () => {
@@ -346,26 +368,27 @@ export default function App() {
   };
 
   // 画面のレンダリング
-  switch (currentScreen) {
-    case 'title':
-      return <TitleScreen onStart={handleStart} onSettings={handleDebugSettings} />;
-      
-    case 'nameInput':
-      return <NameInputScreen onNext={handleNameInput} userName={tempUserName} />;
-      
-    case 'characterSelect':
-      return (
-        <CharacterNameInputScreen 
-          userName={tempUserName}
-          character={{...currentCharacter!, id: currentCharacter!.type, description: 'ここにパートナーの説明が入る', image: mochiusa}}
-          onBack={() => setCurrentScreen('nameInput')}
-          onCharacterNameChange={handleCharacterNameChange}
-          onComplete={handleCharacterSelect}
-        />
-      );
-      
-    case 'home':
-      if (!userData || !currentCharacter) return <div>Loading...</div>;
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case 'title':
+        return <TitleScreen onStart={handleStart} onSettings={handleDebugSettings} />;
+        
+      case 'nameInput':
+        return <NameInputScreen onNext={handleNameInput} userName={tempUserName} />;
+        
+      case 'characterSelect':
+        return (
+          <CharacterNameInputScreen 
+            userName={tempUserName}
+            character={{...currentCharacter!, id: currentCharacter!.type, description: 'ここにパートナーの説明が入る', image: mochiusa}}
+            onBack={() => setCurrentScreen('nameInput')}
+            onCharacterNameChange={handleCharacterNameChange}
+            onComplete={handleCharacterSelect}
+          />
+        );
+        
+      case 'home':
+        if (!userData || !currentCharacter) return <div>Loading...</div>;
       return (
         <HomeScreen 
           character={currentCharacter}
@@ -455,7 +478,24 @@ export default function App() {
         />
       );
       
-    default:
-      return <div>画面エラー</div>;
-  }
+      default:
+        return <div>画面エラー</div>;
+    }
+  };
+
+  // メインレンダリング
+  return (
+    <div>
+      {renderScreen()}
+      
+      {/* クエスト達成通知オーバーレイ */}
+      {showQuestNotification && (
+        <QuestCompletionNotification
+          completions={questCompletions}
+          onClose={handleQuestNotificationClose}
+          onViewQuests={handleViewQuests}
+        />
+      )}
+    </div>
+  );
 }

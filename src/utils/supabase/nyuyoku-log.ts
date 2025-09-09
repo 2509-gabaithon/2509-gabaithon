@@ -1,4 +1,5 @@
 import { createClient } from './client'
+import { checkAndCompleteQuests, QuestCompletionResult } from './quest'
 
 export interface NyuyokuLogData {
   user_id: string;
@@ -11,7 +12,12 @@ export interface NyuyokuLogData {
   onsen_lng: number;
 }
 
-export async function insertNyuyokuLog(logData: Omit<NyuyokuLogData, 'user_id'>) {
+export interface NyuyokuLogResult {
+  logData: any;
+  questCompletions: QuestCompletionResult[];
+}
+
+export async function insertNyuyokuLog(logData: Omit<NyuyokuLogData, 'user_id'>): Promise<NyuyokuLogResult> {
   const supabase = createClient()
   
   // 認証されたユーザーを取得
@@ -38,5 +44,17 @@ export async function insertNyuyokuLog(logData: Omit<NyuyokuLogData, 'user_id'>)
     throw new Error(`入浴ログ保存エラー: ${error.message}`)
   }
 
-  return data
+  // 入浴記録保存後、クエスト達成判定を実行
+  let questCompletions: QuestCompletionResult[] = [];
+  try {
+    questCompletions = await checkAndCompleteQuests(logData.onsen_place_id);
+  } catch (questError) {
+    // クエスト判定エラーは警告として記録するが、入浴ログ保存は成功とする
+    console.warn('クエスト判定処理でエラーが発生しました:', questError);
+  }
+
+  return {
+    logData: data,
+    questCompletions
+  };
 }

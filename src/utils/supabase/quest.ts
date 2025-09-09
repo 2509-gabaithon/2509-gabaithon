@@ -31,6 +31,101 @@ interface QuestSubmission {
   created_at: string;
 }
 
+// クエスト達成結果型
+export interface QuestCompletionResult {
+  questId: number;
+  questName: string;
+  wasAlreadyCompleted: boolean;
+}
+
+/**
+ * 入浴した温泉がクエスト対象かチェックし、達成記録を保存
+ */
+export async function checkAndCompleteQuests(place_id: string): Promise<QuestCompletionResult[]> {
+  const supabase = createClient();
+  
+  try {
+    // ユーザー認証確認
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      throw new Error('認証が必要です');
+    }
+
+    // 入浴した温泉がクエスト対象かチェック
+    const { data: questOnsens, error: onsenError } = await supabase
+      .from('quest_onsen')
+      .select(`
+        quest_id,
+        quest:quest_id (
+          id,
+          name
+        )
+      `)
+      .eq('place_id', place_id);
+
+    if (onsenError) {
+      console.error('クエスト温泉検索エラー:', onsenError);
+      throw new Error('クエスト対象温泉の検索に失敗しました');
+    }
+
+    if (!questOnsens || questOnsens.length === 0) {
+      // クエスト対象の温泉ではない
+      return [];
+    }
+
+    const results: QuestCompletionResult[] = [];
+
+    // 各対象クエストについて達成記録を保存
+    for (const questOnsen of questOnsens) {
+      const questId = questOnsen.quest_id;
+      const questName = (questOnsen.quest as any)?.name || 'Unknown Quest';
+
+      // 既に達成済みかチェック
+      const { data: existingSubmission, error: checkError } = await supabase
+        .from('quest_submission')
+        .select('quest_id')
+        .eq('user_id', user.id)
+        .eq('quest_id', questId)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        // PGRST116は「レコードが見つからない」エラーで正常
+        console.error('達成記録確認エラー:', checkError);
+        continue;
+      }
+
+      const wasAlreadyCompleted = !!existingSubmission;
+
+      if (!wasAlreadyCompleted) {
+        // 新規達成として記録
+        const { error: insertError } = await supabase
+          .from('quest_submission')
+          .insert({
+            user_id: user.id,
+            quest_id: questId
+          });
+
+        if (insertError) {
+          console.error('クエスト達成記録エラー:', insertError);
+          continue;
+        }
+      }
+
+      results.push({
+        questId,
+        questName,
+        wasAlreadyCompleted
+      });
+    }
+
+    return results;
+
+  } catch (error) {
+    console.error('checkAndCompleteQuests エラー:', error);
+    throw error;
+  }
+}
+
 /**
  * 全クエストを取得し、ユーザーの進捗情報を付加
  */
