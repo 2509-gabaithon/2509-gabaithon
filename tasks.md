@@ -1,69 +1,61 @@
-# クエスト表示機能のDB連携実装計画
+# クエスト機能改善実装計画
 
-## 🎯 実装方針
+## 🎯 新規要件
 
-### questテーブルを触らない制約下での対応
-- `difficulty` と `image_url` カラムは追加しない
-- 既存のDBスキーマ (`quest.id`, `quest.name`, `quest.created_at`) のみ使用
-- フロントエンド側で固定値または計算値として補完
+### UI改善
+- **ボタン名変更**: 「スタンプラリーを見る」→「湯けむりクエストを確認」
+- **サムネイル画像**: `public/quests/{quest.id}.png` から表示
+
+### DB拡張
+- **questテーブル**: `lat`, `lng` カラム追加（将来利用予定）
 
 ## 📝 実装手順
 
-### Step 1: DB連携関数の実装
-- `/src/utils/supabase/quest.ts` 新規作成
-- クエスト取得関数
-- ユーザー完了状況判定関数
+### Step 1: questテーブルのマイグレーション
+- `lat` (double precision) カラム追加
+- `lng` (double precision) カラム追加
+- ALTER TABLEでスキーマ更新
 
-### Step 2: 型定義の更新
-- `Quest` インターフェースをDBスキーマに合わせて修正
-- `difficulty`, `image` は固定値またはオプショナルに
+### Step 2: 画像パス変更
+- `/src/utils/supabase/quest.ts`
+- `getDefaultStampImage()` → `getQuestImage(questId)` 
+- `public/quests/{quest.id}.png` パスに変更
 
-### Step 3: コンポーネント修正
-- `mockQuests` → DB取得データに置換
-- 完了状況の動的判定
-- エラーハンドリング追加
+### Step 3: UI文言修正
+- ボタンテキスト変更箇所を特定
+- 「スタンプラリーを見る」→「湯けむりクエストを確認」
 
-### Step 4: ページ統合
-- `/src/app/view_quest/page.tsx` でDB連携実装
+### Step 4: 型定義更新
+- `Quest`インターフェースに`lat`, `lng`プロパティ追加
+- DB取得時にこれらのフィールドも含める
 
-## 🗃️ 利用するDBテーブル
+## 🗃️ 影響範囲
 
-### quest
+### 修正対象ファイル
+1. **Supabaseマイグレーション**: questテーブルカラム追加
+2. **`/src/utils/supabase/quest.ts`**: 画像パス関数、型定義、クエリ更新
+3. **UI コンポーネント**: ボタン文言変更箇所
+4. **`/public/quests/`**: 各questのサムネイル画像配置
+
+### 画像ファイル要件
+- ファイル名: `{quest.id}.png` (例: `1.png`, `2.png`, `3.png`)
+- 配置場所: `/public/quests/`
+- フォールバック: 既存の共通画像
+
+## � データベース変更
+
+### questテーブル更新後スキーマ
 ```sql
-- id: bigint (PK)
-- name: text
-- created_at: timestamp
+CREATE TABLE quest (
+    id bigint PRIMARY KEY,
+    name text,
+    created_at timestamp with time zone DEFAULT now(),
+    lat double precision,     -- 新規追加
+    lng double precision      -- 新規追加
+);
 ```
 
-### quest_submission  
-```sql
-- user_id: uuid (PK)
-- quest_id: bigint (FK)
-- created_at: timestamp
-```
-
-### quest_onsen
-```sql
-- id: bigint (PK)
-- place_id: text
-- lat: double precision
-- lng: double precision
-- quest_id: bigint (FK)
-```
-
-## 🔧 固定値での補完方法
-
-### difficulty
-- questのidまたは名前から判定
-- デフォルト: "初級"
-
-### image
-- 共通のstampImage.srcを使用
-- 将来的に個別対応可能な設計
-
-## 📦 成果物
-
-1. `/src/utils/supabase/quest.ts` - DB連携関数
-2. `/src/components/QuestScreen.tsx` - DB対応版
-3. `/src/app/view_quest/page.tsx` - 統合版
-4. 型定義の更新
+## ⚠️ 注意事項
+- questテーブルの既存データには`lat`, `lng`は`NULL`
+- 画像ファイルが存在しない場合はフォールバック表示
+- 将来的に位置情報を活用した機能拡張予定

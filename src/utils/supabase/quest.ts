@@ -5,6 +5,8 @@ export interface Quest {
   id: number;
   name: string;
   created_at: string;
+  lat?: number;  // 新規追加
+  lng?: number;  // 新規追加
   // フロントエンド用の計算フィールド
   difficulty?: string;
   image?: string;
@@ -45,7 +47,7 @@ export async function getQuestsWithProgress(): Promise<Quest[]> {
     // クエスト基本情報を取得
     const { data: quests, error: questError } = await supabase
       .from('quest')
-      .select('id, name, created_at')
+      .select('id, name, created_at, lat, lng')
       .order('id', { ascending: true });
 
     if (questError) {
@@ -95,7 +97,7 @@ export async function getQuestsWithProgress(): Promise<Quest[]> {
       return {
         ...quest,
         difficulty: getDifficultyByQuestId(quest.id),
-        image: getDefaultStampImage(),
+        image: getQuestImage(quest.id),
         onsenCount,
         userProgress: isCompleted ? onsenCount : 0, // 簡略化: 完了 = 100%
         isCompleted
@@ -174,7 +176,14 @@ function getDifficultyByQuestId(questId: number): string {
 }
 
 /**
- * デフォルトのスタンプ画像を取得
+ * questIdから専用の画像パスを取得
+ */
+function getQuestImage(questId: number): string {
+  return `/quests/${questId}.png`;
+}
+
+/**
+ * デフォルトのスタンプ画像を取得（フォールバック用）
  */
 function getDefaultStampImage(): string {
   // 共通のスタンプ画像パスを返す

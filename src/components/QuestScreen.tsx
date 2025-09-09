@@ -168,6 +168,10 @@ export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestLi
                         src={quest.image || stampImage.src}
                         alt={quest.name}
                         className="w-16 h-16 object-contain relative z-10"
+                        onError={(e) => {
+                          // 画像読み込み失敗時はフォールバック画像を使用
+                          (e.target as HTMLImageElement).src = stampImage.src;
+                        }}
                         style={{
                           filter: `
                             contrast(1.2) 
