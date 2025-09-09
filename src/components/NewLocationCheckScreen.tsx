@@ -8,10 +8,22 @@ import yuttsuraImage from "@/assets/cc82c1498637df3406caa6867e011e9f0b8813d7.png
 import kawaiiImage from "@/assets/ac6d9ab22063d00cb690b5d70df3dad88375e1a0.png";
 import { GoogleMap, Marker, Circle, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 
+interface OnsenDetail {
+  name: string;
+  place_id: string;
+  geometry: {
+    location: {
+      lat(): number;
+      lng(): number;
+    };
+  };
+}
+
 interface NewLocationCheckScreenProps {
   onBack: () => void;
   onStartBathing: () => void;  
   setOnsen: (name: string) => void;
+  setOnsenDetail: (onsen: OnsenDetail | null) => void;
   character: { name: string; type: string };
 }
 
@@ -42,6 +54,7 @@ export function NewLocationCheckScreen({
   onBack,
   onStartBathing,
   setOnsen,
+  setOnsenDetail,
   character,
 }: NewLocationCheckScreenProps) {
   const containerStyle = {
@@ -173,6 +186,11 @@ export function NewLocationCheckScreen({
                     onClick={() => {
                       setActiveOnsenIdx(idx);
                       setOnsen(onsenLocations[idx].name);
+                      setOnsenDetail({
+                        name: onsenLocations[idx].name,
+                        place_id: onsenLocations[idx].place_id,
+                        geometry: onsenLocations[idx].geometry
+                      });
                     }}
                   />
                   {activeOnsenIdx === idx && (
@@ -184,6 +202,7 @@ export function NewLocationCheckScreen({
                       onCloseClick={() => {
                         setActiveOnsenIdx(null);
                         setOnsen('未選択');
+                        setOnsenDetail(null);
                       }}
                     >
                       <div>{place.name}</div>

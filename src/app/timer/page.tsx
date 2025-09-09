@@ -13,8 +13,8 @@ export default function Timer() {
     stamina: 0,
     onsenCount: 0,
   }
-  const handleComplete = () => {
-    console.log("handle Complete")
+  const handleComplete = (data: { timeSpent: number; startTime: Date; endTime: Date }) => {
+    console.log("handle Complete", data)
   }
   const handleCancel = () => {
     console.log("handle Cancel")
