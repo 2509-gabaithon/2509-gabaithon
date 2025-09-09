@@ -72,22 +72,17 @@ export function CharacterNameInputScreen({
           </div>
 
           {/* Character Display */}
-          <Card className="mb-6">
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center text-center">
-                <div className="w-24 h-24 rounded-full mb-4 overflow-hidden bg-app-accent-2 flex items-center justify-center shadow-lg">
-                  <img
-                    src={character.image.src}
-                    alt="パートナーキャラクター"
-                    className="w-20 h-20 object-contain"
-                  />
-                </div>
-                <p className="text-app-base-light mb-4">
-                  {character.description}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-center text-center">
+            <img
+              src={character.image.src}
+              alt="パートナーキャラクター"
+              className="size-76 object-contain shadow-[0px_7px_7px_-10px_rgba(0,0,0,0.5)] mb-6"
+            />
+            {/* 説明テキストだけ白枠で囲む */}
+            <p className="text-xl font-bold text-white mb-12 opacity-90">
+              {character.description || "ここにパートナーの説明が入る"}
+            </p>
+          </div>
 
           {/* Name Input */}
           <Card className="mb-8">
