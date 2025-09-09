@@ -71,6 +71,21 @@ export function NewLocationCheckScreen({
   const [isNearOnsen, setIsNearOnsen] = useState<boolean>(false);
   const [locationError, setLocationError] = useState<boolean>(false);
 
+  // ガイド表示制御
+  const [showGuide, setShowGuide] = useState(false);
+
+  // 3秒後にガイド表示開始
+  useEffect(() => {
+    if (activeOnsenIdx === null) {
+      const timer = setTimeout(() => {
+        setShowGuide(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowGuide(false);
+    }
+  }, [activeOnsenIdx])
+
   const getLocation = () => {
     setLocationError(false);
     if (navigator.geolocation) {
@@ -218,6 +233,22 @@ export function NewLocationCheckScreen({
           <div>Loading...</div>
         )}
       </div>
+
+      {/* 温泉未選択時のみガイド表示（3秒後フェードイン＋パルス） */}
+      {showGuide && (
+        <div
+          className={`absolute bottom-100 left-1/2 -translate-x-1/2 bg-black/40 text-white text-sm font-medium px-4 py-2 rounded-full z-30 opacity-0 transition-opacity duration-700`}
+          style={{
+            opacity: showGuide ? 1 : 0,
+            animation: showGuide ? 'pulse 1.5s infinite 0.7s' : 'none'
+          }}
+        >
+          タップして温泉を選択!
+        </div>
+    )}
+
+
+
 
       {/* ヘッダー - オーバーレイ */}
       <div className="absolute top-0 left-0 right-0 z-10 flex items-center p-4 bg-white/80 backdrop-blur-sm">
