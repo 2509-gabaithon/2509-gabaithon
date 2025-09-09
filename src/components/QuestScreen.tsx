@@ -154,8 +154,10 @@ export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestLi
           {quests.map((quest: Quest) => (
             <Card 
               key={quest.id} 
-              className={`cursor-pointer transition-all bg-white/95 backdrop-blur-sm border-white/20 ${
-                quest.isCompleted ? 'border-app-main shadow-lg' : 'hover:shadow-md hover:bg-white'
+              className={`cursor-pointer transition-all bg-white/95 backdrop-blur-sm ${
+                quest.isCompleted 
+                  ? 'border-2 border-green-400 shadow-lg shadow-green-100' 
+                  : 'border border-gray-200 hover:shadow-md hover:bg-white hover:border-gray-300'
               }`}
               onClick={() => onSelectQuest(quest)}
             >
@@ -231,15 +233,33 @@ export function StampRallyScreen({ onBack, onSelectQuest, onTabChange }: QuestLi
                       </Badge>
                     </div>
                     
-                    {quest.isCompleted ? (
-                      <Badge className="bg-app-main">
-                        ✓ 完了済み
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="border-app-base-light text-app-base-light">
-                        未完了
-                      </Badge>
-                    )}
+                    {/* 改善された完了状況表示 */}
+                    <div className="flex items-center justify-between">
+                      {quest.isCompleted ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="flex items-center">
+                            <div className="w-3 h-3 bg-green-500 rounded-full mr-2 flex items-center justify-center">
+                              <CheckCircle className="w-2 h-2 text-white" />
+                            </div>
+                            <Badge className="bg-green-500 text-white border-green-500">
+                              ✅ 完了済み
+                            </Badge>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <div className="w-3 h-3 border-2 border-gray-300 rounded-full mr-2"></div>
+                          <Badge variant="outline" className="border-gray-300 text-gray-500">
+                            ⚪ 未完了
+                          </Badge>
+                        </div>
+                      )}
+                      
+                      {/* 温泉数表示 */}
+                      <span className="text-sm text-app-base-light">
+                        {quest.onsenCount || 0}ヶ所
+                      </span>
+                    </div>
                   </div>
                 </div>
               </CardContent>
